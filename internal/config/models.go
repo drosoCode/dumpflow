@@ -9,7 +9,6 @@ import (
 )
 
 type Site struct {
-	ID         int64     `json:"id"`
 	DbName     string    `json:"dbName"`
 	Link       string    `json:"link"`
 	UpdateDate time.Time `json:"updateDate"`

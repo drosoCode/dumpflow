@@ -3,10 +3,10 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strconv"
 	"time"
 
 	config "github.com/drosocode/dumpflow/internal/config"
+	database "github.com/drosocode/dumpflow/internal/database"
 	"github.com/drosocode/dumpflow/internal/downloader"
 	"github.com/drosocode/dumpflow/internal/importer"
 	"github.com/drosocode/dumpflow/internal/utils/srv"
@@ -26,8 +26,8 @@ func SetupSite(r *chi.Mux) {
 
 	site.Get("/", ListSites())
 	site.Get("/status", GetStatus())
-	site.Get("/{id}", GetSite())
-	site.Get("/db/{name}", GetSiteFromDB())
+	site.Get("/{name}", GetSite())
+	site.Delete("/{name}", RemoveSite())
 
 	site.Get("/download", ListDownloadSites())
 	site.Post("/download", DownloadSite())
@@ -40,19 +40,37 @@ func SetupSite(r *chi.Mux) {
 	status = map[string]bool{}
 }
 
-// GET site/{id}
+// GET site/{name}
 func GetSite() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-		if srv.IfError(w, r, err) {
-			return
-		}
-
-		data, err := config.DB.GetSite(context.Background(), id)
+		data, err := config.DB.GetSite(context.Background(), chi.URLParam(r, "name"))
 		if srv.IfError(w, r, err) {
 			return
 		}
 		srv.JSON(w, r, 200, data)
+	}
+}
+
+// DELETE site/{name}
+func RemoveSite() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := chi.URLParam(r, "name")
+
+		data, err := config.DB.GetSite(context.Background(), name)
+		if srv.IfError(w, r, err) {
+			return
+		}
+
+		err = database.DeleteDB(data.DbName)
+		if srv.IfError(w, r, err) {
+			return
+		}
+
+		err = config.DB.RemoveSite(context.Background(), name)
+		if srv.IfError(w, r, err) {
+			return
+		}
+		srv.JSON(w, r, 200, "ok")
 	}
 }
 
@@ -60,17 +78,6 @@ func GetSite() http.HandlerFunc {
 func ListSites() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := config.DB.ListSites(context.Background())
-		if srv.IfError(w, r, err) {
-			return
-		}
-		srv.JSON(w, r, 200, data)
-	}
-}
-
-// GET site/db/{name}
-func GetSiteFromDB() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := config.DB.GetSiteFromDB(context.Background(), chi.URLParam(r, "name"))
 		if srv.IfError(w, r, err) {
 			return
 		}

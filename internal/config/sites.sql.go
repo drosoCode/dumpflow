@@ -34,32 +34,13 @@ func (q *Queries) AddSite(ctx context.Context, arg AddSiteParams) error {
 }
 
 const getSite = `-- name: GetSite :one
-SELECT id, db_name, link, update_date, auto_update, enabled FROM sites WHERE id = $1
+SELECT db_name, link, update_date, auto_update, enabled FROM sites WHERE db_name = $1
 `
 
-func (q *Queries) GetSite(ctx context.Context, id int64) (Site, error) {
-	row := q.db.QueryRowContext(ctx, getSite, id)
+func (q *Queries) GetSite(ctx context.Context, dbName string) (Site, error) {
+	row := q.db.QueryRowContext(ctx, getSite, dbName)
 	var i Site
 	err := row.Scan(
-		&i.ID,
-		&i.DbName,
-		&i.Link,
-		&i.UpdateDate,
-		&i.AutoUpdate,
-		&i.Enabled,
-	)
-	return i, err
-}
-
-const getSiteFromDB = `-- name: GetSiteFromDB :one
-SELECT id, db_name, link, update_date, auto_update, enabled FROM sites WHERE db_name = $1
-`
-
-func (q *Queries) GetSiteFromDB(ctx context.Context, dbName string) (Site, error) {
-	row := q.db.QueryRowContext(ctx, getSiteFromDB, dbName)
-	var i Site
-	err := row.Scan(
-		&i.ID,
 		&i.DbName,
 		&i.Link,
 		&i.UpdateDate,
@@ -70,7 +51,7 @@ func (q *Queries) GetSiteFromDB(ctx context.Context, dbName string) (Site, error
 }
 
 const listSites = `-- name: ListSites :many
-SELECT id, db_name, link, update_date, auto_update, enabled FROM sites
+SELECT db_name, link, update_date, auto_update, enabled FROM sites ORDER BY link
 `
 
 func (q *Queries) ListSites(ctx context.Context) ([]Site, error) {
@@ -83,7 +64,6 @@ func (q *Queries) ListSites(ctx context.Context) ([]Site, error) {
 	for rows.Next() {
 		var i Site
 		if err := rows.Scan(
-			&i.ID,
 			&i.DbName,
 			&i.Link,
 			&i.UpdateDate,
@@ -104,19 +84,10 @@ func (q *Queries) ListSites(ctx context.Context) ([]Site, error) {
 }
 
 const removeSite = `-- name: RemoveSite :exec
-DELETE FROM sites WHERE id = $1
-`
-
-func (q *Queries) RemoveSite(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, removeSite, id)
-	return err
-}
-
-const removeSiteFromDB = `-- name: RemoveSiteFromDB :exec
 DELETE FROM sites WHERE db_name = $1
 `
 
-func (q *Queries) RemoveSiteFromDB(ctx context.Context, dbName string) error {
-	_, err := q.db.ExecContext(ctx, removeSiteFromDB, dbName)
+func (q *Queries) RemoveSite(ctx context.Context, dbName string) error {
+	_, err := q.db.ExecContext(ctx, removeSite, dbName)
 	return err
 }

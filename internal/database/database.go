@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -26,6 +27,24 @@ type DBMSConn struct {
 func ConfigDB(conn DBMSConn) {
 	dbms = conn
 	db = map[string]*Queries{}
+}
+
+func DeleteDB(name string) error {
+	l := len(dbms.Prefix)
+	if name[0:l] != dbms.Prefix {
+		return errors.New("invalid prefix")
+	}
+
+	db, err := sql.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=disable", dbms.Host, dbms.Port, dbms.User, dbms.Password))
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("DROP DATABASE " + name)
+	db.Close()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func GetDB(name string) (*Queries, error) {

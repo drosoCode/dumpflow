@@ -543,16 +543,16 @@ paths:
                     items:
                       $ref: '#/components/schemas/site'
 
-  /site/{id}:
+  /site/{name}:
     get:
       tags:
       - Config
       summary: Get sites data
       operationId: get_site
       parameters:
-      - name: id
+      - name: name
         in: path
-        description: website id
+        description: website name
         required: true
         schema:
           type: number
@@ -569,20 +569,18 @@ paths:
                     default: ok
                   data:
                     $ref: '#/components/schemas/site'
-      
-  /site/db/{site}:
-    get:
+    delete:
       tags:
       - Config
-      summary: Get sites data
-      operationId: get_site_name
+      summary: Remove site
+      operationId: delete_site
       parameters:
-      - name: site
+      - name: name
         in: path
         description: website name
         required: true
         schema:
-          type: string
+          type: number
       responses:
         200:
           description: successful operation
@@ -595,8 +593,10 @@ paths:
                     type: string
                     default: ok
                   data:
-                    $ref: '#/components/schemas/site'
+                    type: string
+                    default: ok
       
+ 
   /site/download:
     get:
       tags:
