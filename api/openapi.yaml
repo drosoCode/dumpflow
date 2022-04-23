@@ -765,11 +765,87 @@ paths:
                   data:
                     type: object
                     properties:
-                      current:
-                        type: number
-                      total:
-                        type: number
+                      badges:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
+                      comments:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
+                      postHistory:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
+                      postLinks:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
+                      posts:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
+                      tags:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
+                      users:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
+                      votes:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
       
+  /site/status:
+    get:
+      tags:
+      - Config
+      summary: Get a list of current downloads (false) and imports (true)
+      operationId: get_status
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: boolean
       
 components:
   schemas:

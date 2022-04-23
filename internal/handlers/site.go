@@ -13,12 +13,19 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+var status map[string]bool
+
+var onFinish = func(name string) {
+	delete(status, name)
+}
+
 // handle sites
 func SetupSite(r *chi.Mux) {
 	site := chi.NewRouter()
 	r.Mount("/site", site)
 
 	site.Get("/", ListSites())
+	site.Get("/status", GetStatus())
 	site.Get("/{id}", GetSite())
 	site.Get("/db/{name}", GetSiteFromDB())
 
@@ -29,6 +36,8 @@ func SetupSite(r *chi.Mux) {
 	site.Get("/import", ListImportSites())
 	site.Post("/import", ImportSite())
 	site.Get("/import/status", ImportSiteStatus())
+
+	status = map[string]bool{}
 }
 
 // GET site/{id}
@@ -88,7 +97,9 @@ func ListDownloadSites() http.HandlerFunc {
 // POST site/download
 func DownloadSite() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		go downloader.DownloadSite(r.URL.Query().Get("site"))
+		site := r.URL.Query().Get("site")
+		status[site] = false
+		go downloader.DownloadSite(site, onFinish)
 		srv.JSON(w, r, 200, "ok")
 	}
 }
@@ -108,7 +119,8 @@ func DownloadSiteStatus() http.HandlerFunc {
 func ImportSite() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Query().Get("path")
-		err := importer.ImportFromPath(path)
+		status[path] = true
+		err := importer.ImportFromPath(path, onFinish)
 		if srv.IfError(w, r, err) {
 			return
 		}
@@ -132,5 +144,12 @@ func ImportSiteStatus() http.HandlerFunc {
 func ListImportSites() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		srv.JSON(w, r, 200, importer.ListPaths())
+	}
+}
+
+// GET site/status
+func GetStatus() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		srv.JSON(w, r, 200, status)
 	}
 }

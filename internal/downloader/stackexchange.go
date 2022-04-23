@@ -45,11 +45,11 @@ func ListSites() (time.Time, map[string]string, error) {
 }
 
 type DownloadStatus struct {
-	TotalFiles                int
-	FinishedFiles             int
-	CurrentFile               string
-	CurrentFileDownloadedSize int
-	CurrentFileTotalSize      int
+	TotalFiles                int    `json:"totalFiles"`
+	FinishedFiles             int    `json:"finishedFiles"`
+	CurrentFile               string `json:"currentFile"`
+	CurrentFileDownloadedSize int    `json:"currentFileDownloadedSize"`
+	CurrentFileTotalSize      int    `json:"currentFileTotalSize"`
 }
 
 func GetDownloadStatus(name string) (*DownloadStatus, error) {
@@ -65,7 +65,7 @@ func GetDownloadStatus(name string) (*DownloadStatus, error) {
 	return st, nil
 }
 
-func DownloadSite(name string) {
+func DownloadSite(name string, onFinishCallback func(string)) {
 	if Status == nil {
 		Status = map[string]*DownloadStatus{}
 	}
@@ -120,4 +120,5 @@ func DownloadSite(name string) {
 		Status[name].FinishedFiles++
 	}
 
+	onFinishCallback(name)
 }

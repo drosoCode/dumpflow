@@ -76,7 +76,7 @@ func verifXmlFiles(path string) error {
 	return nil
 }
 
-func ImportFromPath(providedPath string) error {
+func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 	name := getSlug(providedPath)
 
 	if Status == nil {
@@ -125,12 +125,12 @@ func ImportFromPath(providedPath string) error {
 		go importFile(db, reader, f, size, &st, &wg)
 	}
 
-	go onFinish(name, path, providedPath, &wg)
+	go onFinish(name, path, providedPath, &wg, onFinishCallback)
 
 	return nil
 }
 
-func onFinish(name string, path string, providedPath string, wg *sync.WaitGroup) {
+func onFinish(name string, path string, providedPath string, wg *sync.WaitGroup, onFinishCallback func(string)) {
 	wg.Wait()
 
 	log.Printf("import finished for %s", name)
@@ -146,6 +146,8 @@ func onFinish(name string, path string, providedPath string, wg *sync.WaitGroup)
 	if path != providedPath {
 		os.Remove(providedPath)
 	}
+
+	onFinishCallback(providedPath)
 }
 
 func getLinkFromPath(path string) string {
