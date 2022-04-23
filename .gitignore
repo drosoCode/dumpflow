@@ -1,0 +1,14 @@
+web/.DS_Store
+web/node_modules
+web/build
+web/.svelte-kit
+web/package
+web/.env
+web/.env.*
+web/.env.example
+web/.vercel
+web/.output
+
+data/
+internal/database/schema.sql
+internal/config/config.sql

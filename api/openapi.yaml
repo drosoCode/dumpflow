@@ -1,0 +1,938 @@
+openapi: 3.0.1
+info:
+  title: DumpFlow API
+  description: This is the API documentation for the DumpFlow project
+  version: 1.0.0
+tags:
+- name: Posts
+  description: Posts
+- name: Comments
+  description: Comments
+- name: Users
+  description: Users
+- name: Tags
+  description: Tags
+- name: Badges
+  description: Badges
+- name: Config
+  description: Configuration
+servers:
+- url: /api/
+  
+paths:
+  /{site}/badge:
+    get:
+      tags:
+      - Badges
+      summary: List all badges
+      operationId: list_badges
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      default: ok
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/badge'
+                      
+  /{site}/badge/{id}:
+    get:
+      tags:
+      - Badges
+      summary: Get a specific badge
+      operationId: get_badge
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the badge
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/badge'
+      
+  /{site}/comment/{id}:
+    get:
+      tags:
+      - Comments
+      summary: Get a specific comment
+      operationId: get_comment
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the comment
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/comment'
+      
+  /{site}/tag:
+    get:
+      tags:
+      - Tags
+      summary: List all tags
+      operationId: list_tags
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/tag'
+      
+  /{site}/tag/{id}:
+    get:
+      tags:
+      - Tags
+      summary: Get a specific tag
+      operationId: get_tag
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the tag
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/tag'
+                    
+  /{site}/tag/name/{name}:
+    get:
+      tags:
+      - Tags
+      summary: Get a specific tag its name
+      operationId: get_tag_from_name
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: name of the tag
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/tag'
+      
+  /{site}/user/{id}:
+    get:
+      tags:
+      - Users
+      summary: Get a specific user
+      operationId: get_user
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the user
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/user'
+    
+  /{site}/user/{id}/badges:
+    get:
+      tags:
+      - Users
+      summary: Get badges for a specific user
+      operationId: get_user_badges
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the user
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/badge' 
+      
+  /{site}/post/{id}:
+    get:
+      tags:
+      - Posts
+      summary: Get a specific post
+      operationId: get_post
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the post
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/post'
+                    
+  /{site}/post/{id}/answers:
+    get:
+      tags:
+      - Posts
+      summary: Get all answers to a specific post
+      operationId: get_post_answers
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the post
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/post'
+
+  /{site}/post/{id}/related:
+    get:
+      tags:
+      - Posts
+      summary: Get related posts to a specific post
+      operationId: get_post_related
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the post
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/post'
+                      
+  /{site}/post/{id}/history:
+    get:
+      tags:
+      - Posts
+      summary: Get a specific post history
+      operationId: get_post_history
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the post
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/post_history'
+      
+  /{site}/post/{id}/votes:
+    get:
+      tags:
+      - Posts
+      summary: Get a specific post votes
+      operationId: get_post_votes
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the post
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/vote'
+                      
+  /{site}/post/{id}/comments:
+    get:
+      tags:
+      - Posts
+      summary: Get a specific post comments
+      operationId: get_post_comments
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the post
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/comment'
+      
+  /{site}/post/{id}/users:
+    get:
+      tags:
+      - Posts
+      summary: Get a specific post users
+      operationId: get_post_users
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: id of the post
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/user'
+      
+  /site/:
+    get:
+      tags:
+      - Config
+      summary: List available sites
+      operationId: list_sites
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/site'
+
+  /site/{id}:
+    get:
+      tags:
+      - Config
+      summary: Get sites data
+      operationId: get_site
+      parameters:
+      - name: id
+        in: path
+        description: website id
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/site'
+      
+  /site/db/{site}:
+    get:
+      tags:
+      - Config
+      summary: Get sites data
+      operationId: get_site_name
+      parameters:
+      - name: site
+        in: path
+        description: website name
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    $ref: '#/components/schemas/site'
+      
+  /site/download:
+    get:
+      tags:
+      - Config
+      summary: List available sites for download
+      operationId: get_available_sites
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                      sites:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            default: link
+    post:
+      tags:
+      - Config
+      summary: Download site
+      operationId: download_site
+      parameters:
+      - name: site
+        in: query
+        description: website name
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: string
+                    default: ok
+      
+  /site/download/status:
+    get:
+      tags:
+      - Config
+      summary: Get site download status
+      operationId: get_download_status
+      parameters:
+      - name: site
+        in: query
+        description: website name
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: object
+                    properties:
+                      totalFiles:
+                        type: number
+                      finishedFiles:
+                        type: number
+                      currentFile:
+                        type: string
+                      currentFileTotalSize:
+                        type: number
+                      currentFileDownloadedSize:
+                        type: number
+      
+  /site/import:
+    get:
+      tags:
+      - Config
+      summary: List available sites for import
+      operationId: get_available_sites_import
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: array
+                    items:
+                      type: string
+    post:
+      tags:
+      - Config
+      summary: Import site
+      operationId: import_site
+      parameters:
+      - name: path
+        in: query
+        description: website path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: string
+                    default: ok
+      
+  /site/import/status:
+    get:
+      tags:
+      - Config
+      summary: Get site import status
+      operationId: get_import_status
+      parameters:
+      - name: site
+        in: query
+        description: website name
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: object
+                    properties:
+                      current:
+                        type: number
+                      total:
+                        type: number
+      
+      
+components:
+  schemas:
+    badge:
+      type: object
+      properties:
+        id:
+          type: number
+        user_id:
+          type: number
+        name:
+          type: string
+        date:
+          type: string
+        class:
+          type: number
+        tag_based:
+          type: boolean
+          
+    comment:
+      type: object
+      properties:
+        id:
+          type: number
+        post_id:
+          type: number
+        score:
+          type: number
+        text:
+          type: string
+        creation_date:
+          type: string
+        user_id:
+          type: number
+        content_license:
+          type: string
+          
+    tag:
+      type: object
+      properties:
+        id:
+          type: number
+        count:
+          type: number
+        tag_name:
+          type: string
+        is_required:
+          type: boolean
+        is_moderator_only:
+          type: boolean
+        wiki_post_id:
+          type: number
+        excerpt_post_id:
+          type: number
+          
+    user:
+      type: object
+      properties:
+        id:
+          type: number
+        reputation:
+          type: number
+        creation_date:
+          type: string
+        display_name:
+          type: string
+        last_access_date:
+          type: string
+        location:
+          type: string
+        website_url:
+          type: string
+        about_me:
+          type: string
+        views:
+          type: number
+        upvotes:
+          type: number
+        downvotes:
+          type: number
+        account_id:
+          type: number
+        profile_image_url:
+          type: string
+          
+    post:
+      type: object
+      properties:
+        id:
+          type: number
+        post_type_id:
+          type: number
+        creation_date:
+          type: string
+        closed_date:
+          type: string
+        accepted_answer_id:
+          type: number
+        score:
+          type: number
+        body:
+          type: string
+        tags:
+          type: string
+        view_count:
+          type: number
+        answer_count:
+          type: number
+        comment_count:
+          type: number
+        favorite_count:
+          type: number
+        content_license:
+          type: string
+        
+    post_history:
+      type: object
+      properties:
+        id:
+          type: number
+        post_history_type_id:
+          type: number
+        post_id:
+          type: number
+        revision_guid:
+          type: string
+        creation_date:
+          type: string
+        user_id:
+          type: number
+        comment:
+          type: string
+        text:
+          type: string
+        content_license:
+          type: string
+          
+    vote:
+      type: object
+      properties:
+        id:
+          type: number
+        post_id:
+          type: number
+        vote_type_id:
+          type: number
+        creation_date:
+          type: string
+          
+    site:
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        dbName:
+          type: string
+        link:
+          type: string
+        updateDate:
+          type: string
+        audoUpdate:
+          type: boolean
+        enabled:
+          type: boolean
