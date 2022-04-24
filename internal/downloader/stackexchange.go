@@ -36,7 +36,7 @@ func ListSites() (time.Time, map[string]string, error) {
 	for _, link := range links {
 		name := strings.TrimSpace(link.Text())
 		if strings.Index(name, "stackoverflow.com-") > -1 {
-			data["stackoverflow.com"] += link.Attrs()["href"] + ";"
+			data["stackoverflow.com"] += "https://archive.org" + link.Attrs()["href"] + ";"
 		} else {
 			data[name[0:len(name)-3]] = "https://archive.org" + link.Attrs()["href"]
 		}
