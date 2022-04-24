@@ -13,7 +13,7 @@ import (
 //go:embed schema.sql
 var embedFS embed.FS
 
-var db map[string]*Queries
+var db map[string]*sql.DB
 var dbms DBMSConn
 
 type DBMSConn struct {
@@ -26,7 +26,7 @@ type DBMSConn struct {
 
 func ConfigDB(conn DBMSConn) {
 	dbms = conn
-	db = map[string]*Queries{}
+	db = map[string]*sql.DB{}
 }
 
 func DeleteDB(name string) error {
@@ -48,7 +48,19 @@ func DeleteDB(name string) error {
 }
 
 func GetDB(name string) (*Queries, error) {
-	dbname := dbms.Prefix + name
+	db, err := GetRawDB(name)
+	if err != nil {
+		return nil, err
+	}
+	return New(db), nil
+}
+
+func GetRawDB(name string) (*sql.DB, error) {
+	dbname := name
+	l := len(dbms.Prefix)
+	if name[0:l] != dbms.Prefix {
+		dbname = dbms.Prefix + name
+	}
 
 	if dbconn, ok := db[dbname]; ok {
 		return dbconn, nil
@@ -62,7 +74,7 @@ func GetDB(name string) (*Queries, error) {
 	return d, nil
 }
 
-func connect(conn DBMSConn, database string) (*Queries, error) {
+func connect(conn DBMSConn, database string) (*sql.DB, error) {
 	// connect to db
 	db, err := sql.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", conn.Host, conn.Port, conn.User, conn.Password, database))
 	if err != nil {
@@ -109,5 +121,5 @@ func connect(conn DBMSConn, database string) (*Queries, error) {
 		}
 	}
 
-	return New(db), nil
+	return db, nil
 }

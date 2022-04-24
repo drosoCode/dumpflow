@@ -313,6 +313,66 @@ paths:
                   data:
                     $ref: '#/components/schemas/post'
                     
+  /{site}/post/search:
+    post:
+      tags:
+      - Posts
+      summary: Post Search
+      operationId: search_post
+      parameters:
+      - name: site
+        in: path
+        description: website to use
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                search:
+                  type: string
+                username:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                comments:
+                  type: boolean
+                history:
+                  type: boolean
+                start:
+                  type: number
+                  default: 0
+                limit:
+                  type: number
+                  default: 10
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    default: ok
+                  data:
+                    type: object
+                    properties:
+                      posts:
+                        type: array
+                        items:
+                          type: number
+                      results:
+                        type: number
+                      
+                    
   /{site}/post/{id}/answers:
     get:
       tags:

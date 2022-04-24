@@ -397,7 +397,7 @@ func (q *Queries) ListRelatedPosts(ctx context.Context, arg ListRelatedPostsPara
 
 const listTags = `-- name: ListTags :many
 
-SELECT id, tag_name, count, is_required, is_moderator_only, wiki_post_id, excerpt_post_id FROM tags
+SELECT id, tag_name, count, is_required, is_moderator_only, wiki_post_id, excerpt_post_id FROM tags ORDER BY tag_name
 `
 
 //--------- TAGS
@@ -492,47 +492,6 @@ func (q *Queries) ListVotesFromPost(ctx context.Context, postID int64) ([]Vote, 
 			&i.VoteTypeID,
 			&i.CreationDate,
 		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const searchPost = `-- name: SearchPost :many
-SELECT id, ts_rank_cd(vector, query) AS rank
-FROM posts, to_tsquery('english', $1) query, to_tsvector('english', body) vector
-WHERE vector @@ query
-ORDER BY rank DESC
-LIMIT $2
-`
-
-type SearchPostParams struct {
-	ToTsquery string `json:"toTsquery"`
-	Limit     int32  `json:"limit"`
-}
-
-type SearchPostRow struct {
-	ID   int64   `json:"id"`
-	Rank float32 `json:"rank"`
-}
-
-func (q *Queries) SearchPost(ctx context.Context, arg SearchPostParams) ([]SearchPostRow, error) {
-	rows, err := q.db.QueryContext(ctx, searchPost, arg.ToTsquery, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []SearchPostRow
-	for rows.Next() {
-		var i SearchPostRow
-		if err := rows.Scan(&i.ID, &i.Rank); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

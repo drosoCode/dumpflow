@@ -1,11 +1,3 @@
--- name: SearchPost :many
-SELECT id, ts_rank_cd(vector, query) AS rank
-FROM posts, to_tsquery('english', $1) query, to_tsvector('english', body) vector
-WHERE vector @@ query
-ORDER BY rank DESC
-LIMIT $2;
-
-
 ----------- POSTS
 
 -- name: GetPost :one
@@ -47,7 +39,7 @@ SELECT * FROM badges WHERE user_id = $1;
 ----------- TAGS
 
 -- name: ListTags :many
-SELECT * FROM tags;
+SELECT * FROM tags ORDER BY tag_name;
 
 -- name: GetTag :many
 SELECT * FROM tags WHERE id = $1;
