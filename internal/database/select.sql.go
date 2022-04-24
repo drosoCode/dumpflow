@@ -29,51 +29,30 @@ func (q *Queries) GetBadge(ctx context.Context, id int64) (Badge, error) {
 
 const getComment = `-- name: GetComment :one
 
-SELECT id, post_id, score, text, creation_date, user_id, content_license FROM comments WHERE id = $1
+SELECT (id, post_id, score, text, creation_date, user_id, content_license)
+FROM comments WHERE id = $1
 `
 
 //--------- COMMENTS
-func (q *Queries) GetComment(ctx context.Context, id int64) (Comment, error) {
+func (q *Queries) GetComment(ctx context.Context, id int64) (interface{}, error) {
 	row := q.db.QueryRowContext(ctx, getComment, id)
-	var i Comment
-	err := row.Scan(
-		&i.ID,
-		&i.PostID,
-		&i.Score,
-		&i.Text,
-		&i.CreationDate,
-		&i.UserID,
-		&i.ContentLicense,
-	)
-	return i, err
+	var column_1 interface{}
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const getPost = `-- name: GetPost :one
 
-SELECT id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license FROM posts WHERE id = $1
+SELECT (id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license)
+FROM posts WHERE id = $1
 `
 
 //--------- POSTS
-func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
+func (q *Queries) GetPost(ctx context.Context, id int64) (interface{}, error) {
 	row := q.db.QueryRowContext(ctx, getPost, id)
-	var i Post
-	err := row.Scan(
-		&i.ID,
-		&i.PostTypeID,
-		&i.ParentID,
-		&i.AcceptedAnswerID,
-		&i.CreationDate,
-		&i.ClosedDate,
-		&i.Score,
-		&i.ViewCount,
-		&i.Body,
-		&i.Tags,
-		&i.AnswerCount,
-		&i.CommentCount,
-		&i.FavoriteCount,
-		&i.ContentLicense,
-	)
-	return i, err
+	var column_1 interface{}
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const getTag = `-- name: GetTag :many
@@ -174,37 +153,23 @@ func (q *Queries) GetUser(ctx context.Context, accountID int64) (User, error) {
 }
 
 const listAnswers = `-- name: ListAnswers :many
-SELECT id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license FROM posts WHERE parent_id = $1
+SELECT (id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license)
+FROM posts WHERE parent_id = $1
 `
 
-func (q *Queries) ListAnswers(ctx context.Context, parentID int64) ([]Post, error) {
+func (q *Queries) ListAnswers(ctx context.Context, parentID int64) ([]interface{}, error) {
 	rows, err := q.db.QueryContext(ctx, listAnswers, parentID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	var items []interface{}
 	for rows.Next() {
-		var i Post
-		if err := rows.Scan(
-			&i.ID,
-			&i.PostTypeID,
-			&i.ParentID,
-			&i.AcceptedAnswerID,
-			&i.CreationDate,
-			&i.ClosedDate,
-			&i.Score,
-			&i.ViewCount,
-			&i.Body,
-			&i.Tags,
-			&i.AnswerCount,
-			&i.CommentCount,
-			&i.FavoriteCount,
-			&i.ContentLicense,
-		); err != nil {
+		var column_1 interface{}
+		if err := rows.Scan(&column_1); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, column_1)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -286,30 +251,23 @@ func (q *Queries) ListBadgesFromUser(ctx context.Context, userID int64) ([]Badge
 }
 
 const listCommentsFromPost = `-- name: ListCommentsFromPost :many
-SELECT id, post_id, score, text, creation_date, user_id, content_license FROM comments WHERE post_id = $1
+SELECT (id, post_id, score, text, creation_date, user_id, content_license)
+FROM comments WHERE post_id = $1
 `
 
-func (q *Queries) ListCommentsFromPost(ctx context.Context, postID int64) ([]Comment, error) {
+func (q *Queries) ListCommentsFromPost(ctx context.Context, postID int64) ([]interface{}, error) {
 	rows, err := q.db.QueryContext(ctx, listCommentsFromPost, postID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Comment
+	var items []interface{}
 	for rows.Next() {
-		var i Comment
-		if err := rows.Scan(
-			&i.ID,
-			&i.PostID,
-			&i.Score,
-			&i.Text,
-			&i.CreationDate,
-			&i.UserID,
-			&i.ContentLicense,
-		); err != nil {
+		var column_1 interface{}
+		if err := rows.Scan(&column_1); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, column_1)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -321,32 +279,23 @@ func (q *Queries) ListCommentsFromPost(ctx context.Context, postID int64) ([]Com
 }
 
 const listHistoryFromPost = `-- name: ListHistoryFromPost :many
-SELECT id, post_history_type_id, post_id, revision_guid, creation_date, user_id, comment, text, content_license FROM post_history WHERE post_id = $1
+SELECT (id, post_history_type_id, post_id, revision_guid, creation_date, user_id,comment, text, content_license) 
+FROM post_history WHERE post_id = $1
 `
 
-func (q *Queries) ListHistoryFromPost(ctx context.Context, postID int64) ([]PostHistory, error) {
+func (q *Queries) ListHistoryFromPost(ctx context.Context, postID int64) ([]interface{}, error) {
 	rows, err := q.db.QueryContext(ctx, listHistoryFromPost, postID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []PostHistory
+	var items []interface{}
 	for rows.Next() {
-		var i PostHistory
-		if err := rows.Scan(
-			&i.ID,
-			&i.PostHistoryTypeID,
-			&i.PostID,
-			&i.RevisionGuid,
-			&i.CreationDate,
-			&i.UserID,
-			&i.Comment,
-			&i.Text,
-			&i.ContentLicense,
-		); err != nil {
+		var column_1 interface{}
+		if err := rows.Scan(&column_1); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, column_1)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

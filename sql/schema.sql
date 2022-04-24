@@ -19,7 +19,8 @@ CREATE TABLE "public"."comments" (
     "text" text NOT NULL,
     "creation_date" timestamp NOT NULL,
     "user_id" bigint NOT NULL,
-    "content_license" text NOT NULL
+    "content_license" text NOT NULL,
+    "text_index" tsvector GENERATED ALWAYS AS (to_tsvector('english', "text")) STORED
 ) WITH (oids = false);
 
 
@@ -33,7 +34,8 @@ CREATE TABLE "public"."post_history" (
     "user_id" bigint NOT NULL,
     "comment" text NOT NULL,
     "text" text NOT NULL,
-    "content_license" text NOT NULL
+    "content_license" text NOT NULL,
+    "text_index" tsvector GENERATED ALWAYS AS (to_tsvector('english', "text")) STORED
 ) WITH (oids = false);
 
 
@@ -62,7 +64,8 @@ CREATE TABLE "public"."posts" (
     "answer_count" integer NOT NULL,
     "comment_count" integer NOT NULL,
     "favorite_count" integer NOT NULL,
-    "content_license" text NOT NULL
+    "content_license" text NOT NULL,
+    "body_index" tsvector GENERATED ALWAYS AS (to_tsvector('english', "body")) STORED
 ) WITH (oids = false);
 
 
@@ -106,10 +109,10 @@ CREATE TABLE "public"."votes" (
 
 
 DROP TABLE IF EXISTS "posts_idx";
-CREATE INDEX posts_idx ON posts USING GIN (to_tsvector('english', body));
+CREATE INDEX posts_idx ON posts USING GIN ("body_index");
 
 DROP TABLE IF EXISTS "comments_idx";
-CREATE INDEX comments_idx ON comments USING GIN (to_tsvector('english', text));
+CREATE INDEX comments_idx ON comments USING GIN ("text_index");
 
 DROP TABLE IF EXISTS "post_history_idx";
-CREATE INDEX post_history_idx ON post_history USING GIN (to_tsvector('english', comment || ' ' || text));
+CREATE INDEX post_history_idx ON post_history USING GIN ("text_index");

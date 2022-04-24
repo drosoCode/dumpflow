@@ -18,42 +18,45 @@ type Badge struct {
 }
 
 type Comment struct {
-	ID             int64     `json:"id"`
-	PostID         int64     `json:"postID"`
-	Score          int32     `json:"score"`
-	Text           string    `json:"text"`
-	CreationDate   time.Time `json:"creationDate"`
-	UserID         int64     `json:"userID"`
-	ContentLicense string    `json:"contentLicense"`
+	ID             int64       `json:"id"`
+	PostID         int64       `json:"postID"`
+	Score          int32       `json:"score"`
+	Text           string      `json:"text"`
+	CreationDate   time.Time   `json:"creationDate"`
+	UserID         int64       `json:"userID"`
+	ContentLicense string      `json:"contentLicense"`
+	TextIndex      interface{} `json:"textIndex"`
 }
 
 type Post struct {
-	ID               int64     `json:"id"`
-	PostTypeID       int32     `json:"postTypeID"`
-	ParentID         int64     `json:"parentID"`
-	AcceptedAnswerID int32     `json:"acceptedAnswerID"`
-	CreationDate     time.Time `json:"creationDate"`
-	ClosedDate       time.Time `json:"closedDate"`
-	Score            int32     `json:"score"`
-	ViewCount        int32     `json:"viewCount"`
-	Body             string    `json:"body"`
-	Tags             string    `json:"tags"`
-	AnswerCount      int32     `json:"answerCount"`
-	CommentCount     int32     `json:"commentCount"`
-	FavoriteCount    int32     `json:"favoriteCount"`
-	ContentLicense   string    `json:"contentLicense"`
+	ID               int64       `json:"id"`
+	PostTypeID       int32       `json:"postTypeID"`
+	ParentID         int64       `json:"parentID"`
+	AcceptedAnswerID int32       `json:"acceptedAnswerID"`
+	CreationDate     time.Time   `json:"creationDate"`
+	ClosedDate       time.Time   `json:"closedDate"`
+	Score            int32       `json:"score"`
+	ViewCount        int32       `json:"viewCount"`
+	Body             string      `json:"body"`
+	Tags             string      `json:"tags"`
+	AnswerCount      int32       `json:"answerCount"`
+	CommentCount     int32       `json:"commentCount"`
+	FavoriteCount    int32       `json:"favoriteCount"`
+	ContentLicense   string      `json:"contentLicense"`
+	BodyIndex        interface{} `json:"bodyIndex"`
 }
 
 type PostHistory struct {
-	ID                int64     `json:"id"`
-	PostHistoryTypeID int32     `json:"postHistoryTypeID"`
-	PostID            int64     `json:"postID"`
-	RevisionGuid      string    `json:"revisionGuid"`
-	CreationDate      time.Time `json:"creationDate"`
-	UserID            int64     `json:"userID"`
-	Comment           string    `json:"comment"`
-	Text              string    `json:"text"`
-	ContentLicense    string    `json:"contentLicense"`
+	ID                int64       `json:"id"`
+	PostHistoryTypeID int32       `json:"postHistoryTypeID"`
+	PostID            int64       `json:"postID"`
+	RevisionGuid      string      `json:"revisionGuid"`
+	CreationDate      time.Time   `json:"creationDate"`
+	UserID            int64       `json:"userID"`
+	Comment           string      `json:"comment"`
+	Text              string      `json:"text"`
+	ContentLicense    string      `json:"contentLicense"`
+	TextIndex         interface{} `json:"textIndex"`
 }
 
 type PostLink struct {

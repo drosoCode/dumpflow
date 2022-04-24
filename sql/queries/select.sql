@@ -1,13 +1,16 @@
 ----------- POSTS
 
 -- name: GetPost :one
-SELECT * FROM posts WHERE id = $1;
+SELECT (id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license)
+FROM posts WHERE id = $1;
 
 -- name: ListAnswers :many
-SELECT * FROM posts WHERE parent_id = $1;
+SELECT (id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license)
+FROM posts WHERE parent_id = $1;
 
 -- name: ListHistoryFromPost :many
-SELECT * FROM post_history WHERE post_id = $1;
+SELECT (id, post_history_type_id, post_id, revision_guid, creation_date, user_id,comment, text, content_license) 
+FROM post_history WHERE post_id = $1;
 
 -- name: ListRelatedPosts :many
 SELECT * FROM post_links WHERE post_id = $1 LIMIT $2;
@@ -16,7 +19,8 @@ SELECT * FROM post_links WHERE post_id = $1 LIMIT $2;
 SELECT * FROM votes WHERE post_id = $1;
 
 -- name: ListCommentsFromPost :many
-SELECT * FROM comments WHERE post_id = $1;
+SELECT (id, post_id, score, text, creation_date, user_id, content_license)
+FROM comments WHERE post_id = $1;
 
 -- name: ListUsersFromPost :many
 SELECT * FROM users WHERE id IN (SELECT user_id FROM post_history WHERE post_id = $1 ORDER BY creation_date);
@@ -25,7 +29,8 @@ SELECT * FROM users WHERE id IN (SELECT user_id FROM post_history WHERE post_id 
 ----------- COMMENTS
 
 -- name: GetComment :one
-SELECT * FROM comments WHERE id = $1;
+SELECT (id, post_id, score, text, creation_date, user_id, content_license)
+FROM comments WHERE id = $1;
 
 
 ----------- USERS

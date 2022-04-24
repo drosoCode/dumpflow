@@ -149,16 +149,16 @@ func Search() http.HandlerFunc {
 		searchUsers := "(SELECT p.id, p.parent_id, p.body FROM posts p, post_history h, users u WHERE h.post_id = p.id AND h.user_id = u.id AND u.display_name LIKE $3)"
 
 		query := `
-			SELECT DISTINCT COALESCE(NULLIF(p.parent_id, 0), p.id) AS id, COALESCE(ts_rank_cd(vector1, query),ts_rank_cd(vector2, query)) AS rank 
-			FROM posts p, post_history h, to_tsquery('english', $1) query, to_tsvector('english', p.body) vector1, to_tsvector('english', h.text) vector2 
-			WHERE p.id = h.post_id AND h.post_history_type_id <= $2 AND (vector1 @@ query OR vector2 @@ query) 
+			SELECT DISTINCT COALESCE(NULLIF(p.parent_id, 0), p.id) AS id, COALESCE(ts_rank_cd(p.body_index, query),ts_rank_cd(h.text_index, query)) AS rank 
+			FROM posts p, post_history h, to_tsquery('english', $1) query
+			WHERE p.id = h.post_id AND h.post_history_type_id <= $2 AND (p.body_index @@ query OR h.text_index @@ query) 
 			ORDER BY rank DESC;
 		`
 		if settings.Comments {
 			query = `
-				SELECT DISTINCT COALESCE(NULLIF(p.parent_id, 0), p.id) AS id, COALESCE(ts_rank_cd(vector1, query),ts_rank_cd(vector2, query),ts_rank_cd(vector3, query)) AS rank 
-				FROM posts p, post_history h, comments c, to_tsquery('english', $1) query, to_tsvector('english', p.body) vector1, to_tsvector('english', h.text) vector2, to_tsvector('english', c.text) vector3 
-				WHERE p.id = h.post_id AND COALESCE(NULLIF(p.parent_id, 0), p.id) = c.post_id AND h.post_history_type_id <= $2 AND (vector1 @@ query OR vector2 @@ query OR vector3 @@ query) 
+				SELECT DISTINCT COALESCE(NULLIF(p.parent_id, 0), p.id) AS id, COALESCE(ts_rank_cd(p.body_index, query),ts_rank_cd(h.text_index, query),ts_rank_cd(c.text_index, query)) AS rank 
+				FROM posts p, post_history h, comments c, to_tsquery('english', $1) query
+				WHERE p.id = h.post_id AND COALESCE(NULLIF(p.parent_id, 0), p.id) = c.post_id AND h.post_history_type_id <= $2 AND (p.body_index @@ query OR h.text_index @@ query OR c.text_index @@ query) 
 				ORDER BY rank DESC;
 			`
 		}
