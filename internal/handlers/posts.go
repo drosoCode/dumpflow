@@ -145,19 +145,19 @@ func Search() http.HandlerFunc {
 		}
 
 		// SQL Requests
-		searchTags := "(SELECT  id, parent_id, body FROM posts WHERE tags LIKE ALL($3))"
-		searchUsers := "(SELECT p.id, p.parent_id, p.body FROM posts p, post_history h, users u WHERE h.post_id = p.id AND h.user_id = u.id AND u.display_name LIKE $3)"
+		searchTags := "(SELECT  id, parent_id, body_index FROM posts WHERE tags LIKE ALL($3))"
+		searchUsers := "(SELECT p.id, p.parent_id, p.body_index  FROM posts p, post_history h, users u WHERE h.post_id = p.id AND h.user_id = u.id AND u.display_name LIKE $3)"
 
 		query := `
 			SELECT DISTINCT COALESCE(NULLIF(p.parent_id, 0), p.id) AS id, COALESCE(ts_rank_cd(p.body_index, query),ts_rank_cd(h.text_index, query)) AS rank 
-			FROM posts p, post_history h, to_tsquery('english', $1) query
+			FROM posts p, post_history h, plainto_tsquery('english', $1) query
 			WHERE p.id = h.post_id AND h.post_history_type_id <= $2 AND (p.body_index @@ query OR h.text_index @@ query) 
 			ORDER BY rank DESC;
 		`
 		if settings.Comments {
 			query = `
 				SELECT DISTINCT COALESCE(NULLIF(p.parent_id, 0), p.id) AS id, COALESCE(ts_rank_cd(p.body_index, query),ts_rank_cd(h.text_index, query),ts_rank_cd(c.text_index, query)) AS rank 
-				FROM posts p, post_history h, comments c, to_tsquery('english', $1) query
+				FROM posts p, post_history h, comments c, plainto_tsquery('english', $1) query
 				WHERE p.id = h.post_id AND COALESCE(NULLIF(p.parent_id, 0), p.id) = c.post_id AND h.post_history_type_id <= $2 AND (p.body_index @@ query OR h.text_index @@ query OR c.text_index @@ query) 
 				ORDER BY rank DESC;
 			`
@@ -312,11 +312,15 @@ func ListVotesFromPost() http.HandlerFunc {
 			return
 		}
 
-		data, err := db.ListVotesFromPost(context.Background(), id)
+		data, err := db.GetVotesFromPost(context.Background(), id)
 		if srv.IfError(w, r, err) {
 			return
 		}
-		srv.JSON(w, r, 200, data)
+		ret := map[int32]int64{}
+		for i := range data {
+			ret[data[i].VoteTypeID] = data[i].Votes
+		}
+		srv.JSON(w, r, 200, ret)
 	}
 }
 
