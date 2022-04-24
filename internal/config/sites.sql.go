@@ -11,7 +11,7 @@ import (
 )
 
 const addSite = `-- name: AddSite :exec
-INSERT INTO sites (db_name, link, update_date, auto_update, enabled) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO UPDATE SET update_date = EXCLUDED.update_date
+INSERT INTO sites (db_name, link, update_date, auto_update, enabled) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (db_name) DO UPDATE SET update_date = EXCLUDED.update_date
 `
 
 type AddSiteParams struct {
