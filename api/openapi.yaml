@@ -439,9 +439,18 @@ paths:
                     type: string
                     default: ok
                   data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/post'
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      creationDate:
+                        type: string
+                      postID:
+                        type: number
+                      relatedPostId:
+                        type: number
+                      linkTypeID:
+                        type: number
                       
   /{site}/post/{id}/history:
     get:
@@ -507,9 +516,10 @@ paths:
                     type: string
                     default: ok
                   data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/vote'
+                    type: object
+                    properties:
+                      voteTypeID:
+                        type: number
                       
   /{site}/post/{id}/comments:
     get:

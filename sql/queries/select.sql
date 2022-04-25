@@ -5,12 +5,13 @@ SELECT id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_da
 FROM posts WHERE id = $1;
 
 -- name: ListAnswers :many
-SELECT id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license
-FROM posts WHERE parent_id = $1;
+SELECT id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license,
+((SELECT COUNT(*) FROM votes v WHERE vote_type_id = 2 AND post_id = p.id) - (SELECT COUNT(*) FROM votes WHERE vote_type_id = 3 AND post_id = p.id)) AS votes
+FROM posts p WHERE parent_id = $1 ORDER BY votes DESC, creation_date DESC;
 
 -- name: ListHistoryFromPost :many
 SELECT id, post_history_type_id, post_id, revision_guid, creation_date, user_id,comment, text, content_license
-FROM post_history WHERE post_id = $1;
+FROM post_history WHERE post_id = $1 ORDER BY creation_date DESC;
 
 -- name: ListRelatedPosts :many
 SELECT * FROM post_links WHERE post_id = $1 LIMIT $2;
@@ -20,10 +21,10 @@ SELECT COUNT(*) AS votes, vote_type_id FROM votes WHERE post_id = $1 GROUP BY vo
 
 -- name: ListCommentsFromPost :many
 SELECT id, post_id, score, text, creation_date, user_id, content_license
-FROM comments WHERE post_id = $1;
+FROM comments WHERE post_id = $1 ORDER BY creation_date DESC;
 
 -- name: ListUsersFromPost :many
-SELECT * FROM users WHERE id IN (SELECT user_id FROM post_history WHERE post_id = $1 ORDER BY creation_date);
+SELECT * FROM users WHERE id IN (SELECT user_id FROM post_history WHERE post_id = $1 ORDER BY creation_date DESC);
 
 
 ----------- COMMENTS

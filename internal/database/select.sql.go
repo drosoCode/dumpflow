@@ -236,8 +236,9 @@ func (q *Queries) GetVotesFromPost(ctx context.Context, postID int64) ([]GetVote
 }
 
 const listAnswers = `-- name: ListAnswers :many
-SELECT id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license
-FROM posts WHERE parent_id = $1
+SELECT id, post_type_id, parent_id, accepted_answer_id, creation_date, closed_date, score, view_count, body, tags, answer_count, comment_count, favorite_count, content_license,
+((SELECT COUNT(*) FROM votes v WHERE vote_type_id = 2 AND post_id = p.id) - (SELECT COUNT(*) FROM votes WHERE vote_type_id = 3 AND post_id = p.id)) AS votes
+FROM posts p WHERE parent_id = $1 ORDER BY votes DESC, creation_date DESC
 `
 
 type ListAnswersRow struct {
@@ -255,6 +256,7 @@ type ListAnswersRow struct {
 	CommentCount     int32     `json:"commentCount"`
 	FavoriteCount    int32     `json:"favoriteCount"`
 	ContentLicense   string    `json:"contentLicense"`
+	Votes            int32     `json:"votes"`
 }
 
 func (q *Queries) ListAnswers(ctx context.Context, parentID int64) ([]ListAnswersRow, error) {
@@ -281,6 +283,7 @@ func (q *Queries) ListAnswers(ctx context.Context, parentID int64) ([]ListAnswer
 			&i.CommentCount,
 			&i.FavoriteCount,
 			&i.ContentLicense,
+			&i.Votes,
 		); err != nil {
 			return nil, err
 		}
@@ -367,7 +370,7 @@ func (q *Queries) ListBadgesFromUser(ctx context.Context, userID int64) ([]Badge
 
 const listCommentsFromPost = `-- name: ListCommentsFromPost :many
 SELECT id, post_id, score, text, creation_date, user_id, content_license
-FROM comments WHERE post_id = $1
+FROM comments WHERE post_id = $1 ORDER BY creation_date DESC
 `
 
 type ListCommentsFromPostRow struct {
@@ -413,7 +416,7 @@ func (q *Queries) ListCommentsFromPost(ctx context.Context, postID int64) ([]Lis
 
 const listHistoryFromPost = `-- name: ListHistoryFromPost :many
 SELECT id, post_history_type_id, post_id, revision_guid, creation_date, user_id,comment, text, content_license
-FROM post_history WHERE post_id = $1
+FROM post_history WHERE post_id = $1 ORDER BY creation_date DESC
 `
 
 type ListHistoryFromPostRow struct {
@@ -537,7 +540,7 @@ func (q *Queries) ListTags(ctx context.Context) ([]Tag, error) {
 }
 
 const listUsersFromPost = `-- name: ListUsersFromPost :many
-SELECT id, reputation, creation_date, display_name, last_access_date, location, website_url, about_me, views, upvotes, downvotes, account_id, profile_image_url FROM users WHERE id IN (SELECT user_id FROM post_history WHERE post_id = $1 ORDER BY creation_date)
+SELECT id, reputation, creation_date, display_name, last_access_date, location, website_url, about_me, views, upvotes, downvotes, account_id, profile_image_url FROM users WHERE id IN (SELECT user_id FROM post_history WHERE post_id = $1 ORDER BY creation_date DESC)
 `
 
 func (q *Queries) ListUsersFromPost(ctx context.Context, postID int64) ([]User, error) {

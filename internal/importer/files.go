@@ -56,7 +56,7 @@ func importBadges(db *database.Queries, file io.ReadCloser, size int64, status *
 			UserID:   skipErr(strconv.ParseInt(xml.Attrs["UserId"], 10, 64)),
 			Name:     xml.Attrs["Name"],
 			Date:     skipErr(time.Parse("2006-01-02T15:04:05.000", xml.Attrs["Date"])),
-			Class:    int32(skipErr(strconv.ParseInt(xml.Attrs["UserId"], 10, 32))),
+			Class:    int32(skipErr(strconv.ParseInt(xml.Attrs["Class"], 10, 32))),
 			TagBased: xml.Attrs["TagBased"] == "true",
 		})
 		status.Badges.Current = int64(parser.TotalReadSize)
