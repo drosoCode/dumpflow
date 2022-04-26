@@ -12,8 +12,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/drosocode/dumpflow/cmd"
 	"github.com/drosocode/dumpflow/internal/config"
 	"github.com/drosocode/dumpflow/internal/database"
+	"github.com/drosocode/dumpflow/internal/utils"
 )
 
 var Status map[string]*ImportStatus
@@ -24,6 +26,7 @@ type ImportStatusItem struct {
 }
 
 type ImportStatus struct {
+	Unzipping   ImportStatusItem `json:"unzipping"`
 	Badges      ImportStatusItem `json:"badges"`
 	Comments    ImportStatusItem `json:"comments"`
 	PostHistory ImportStatusItem `json:"postHistory"`
@@ -40,7 +43,18 @@ func ListPaths() []string {
 		if err != nil {
 			return err
 		}
-		if (strings.Index(info.Name(), "stackoverflow.com") > -1 || strings.Index(info.Name(), "stackexchange.com") > -1) &&
+		if strings.Index(info.Name(), "stackoverflow.com-") > -1 {
+			p := filepath.Join(filepath.Dir(path), "stackoverflow.com")
+
+			if !info.IsDir() && filepath.Ext(info.Name()) == ".7z" {
+				p += ".7z"
+			}
+
+			if !utils.Contains(ret, p) {
+				ret = append(ret, p)
+			}
+
+		} else if (strings.Index(info.Name(), "stackoverflow.com") > -1 || strings.Index(info.Name(), "stackexchange.com") > -1) &&
 			((!info.IsDir() && filepath.Ext(info.Name()) == ".7z") ||
 				(info.IsDir() && verifXmlFiles(path) == nil)) {
 			ret = append(ret, path)
@@ -53,15 +67,7 @@ func ListPaths() []string {
 
 func getSlug(path string) string {
 	name := filepath.Base(path)
-	if strings.Index(name, "stackoverflow.com-") > -1 {
-		return "stackoverflow"
-	} else {
-		return strings.ReplaceAll(
-			strings.ReplaceAll(
-				strings.ReplaceAll(name, ".stackexchange.com.7z", ""),
-				".stackoverflow.com.7z", ""),
-			".", "")
-	}
+	return strings.ReplaceAll(strings.Replace(name, ".7z", "", 1), ".", "_")
 }
 
 func verifXmlFiles(path string) error {
@@ -78,6 +84,7 @@ func verifXmlFiles(path string) error {
 
 func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 	name := getSlug(providedPath)
+	base := filepath.Base(providedPath)
 
 	if Status == nil {
 		Status = map[string]*ImportStatus{}
@@ -89,14 +96,34 @@ func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 	st := ImportStatus{}
 	Status[providedPath] = &st
 
+	files := []string{"Badges.xml", "Comments.xml", "PostHistory.xml", "PostLinks.xml", "Posts.xml", "Tags.xml", "Users.xml", "Votes.xml"}
 	path := providedPath
-	if filepath.Ext(providedPath) == ".7z" {
+
+	if base == "stackoverflow.com.7z" {
 		path = providedPath[0 : len(providedPath)-3]
-		cmd := exec.Command("7z", "x", providedPath, "-o"+path, "-aoa")
-		data, err := cmd.CombinedOutput()
-		if err != nil {
-			return errors.New("7zip error: " + string(data))
+		st.Unzipping = ImportStatusItem{Current: 0, Total: 8}
+		for i := range files {
+			p := path + "-" + files[i][0:len(files[i])-4] + ".7z"
+			log.Println(p)
+
+			cmd := exec.Command("7z", "x", p, "-o"+path, "-aoa")
+			data, err := cmd.CombinedOutput()
+			if err != nil {
+				log.Println("7zip error: " + string(data))
+			}
+			st.Unzipping.Current++
 		}
+	} else if filepath.Ext(base) == ".7z" {
+		st.Unzipping = ImportStatusItem{Current: 0, Total: 1}
+		if filepath.Ext(providedPath) == ".7z" {
+			path = providedPath[0 : len(providedPath)-3]
+			cmd := exec.Command("7z", "x", providedPath, "-o"+path, "-aoa")
+			data, err := cmd.CombinedOutput()
+			if err != nil {
+				return errors.New("7zip error: " + string(data))
+			}
+		}
+		st.Unzipping.Current++
 	}
 
 	if err := verifXmlFiles(path); err != nil {
@@ -107,8 +134,6 @@ func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 	if err != nil {
 		return err
 	}
-
-	files := []string{"Badges.xml", "Comments.xml", "PostHistory.xml", "PostLinks.xml", "Posts.xml", "Tags.xml", "Users.xml", "Votes.xml"}
 
 	// import all files
 	for _, f := range files {
@@ -142,9 +167,11 @@ func onFinish(name string, path string, providedPath string, wg *sync.WaitGroup,
 	}
 
 	// remove files
-	os.RemoveAll(path)
-	if path != providedPath {
-		os.Remove(providedPath)
+	if cmd.Config.DeleteOnFinish {
+		os.RemoveAll(path)
+		if path != providedPath {
+			os.Remove(providedPath)
+		}
 	}
 
 	onFinishCallback(providedPath)
