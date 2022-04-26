@@ -78,8 +78,6 @@ dockers:
     image_templates:
       - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-armv6"
       - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-armv6"
-    extra_files:
-      - docker_config.json
 
   - dockerfile: Dockerfile
     use: buildx
