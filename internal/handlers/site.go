@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -127,11 +128,15 @@ func ImportSite() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Query().Get("path")
 		status[path] = true
-		err := importer.ImportFromPath(path, onFinish)
-		if srv.IfError(w, r, err) {
-			return
-		}
+		go importSite(path, onFinish)
 		srv.JSON(w, r, 200, "ok")
+	}
+}
+
+func importSite(path string, onFinishCallback func(string)) {
+	err := importer.ImportFromPath(path, onFinish)
+	if err != nil {
+		log.Println(err)
 	}
 }
 

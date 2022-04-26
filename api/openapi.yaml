@@ -891,6 +891,13 @@ paths:
                             type: number
                           total:
                             type: number
+                      unzipping:
+                        type: object
+                        properties:
+                          current:
+                            type: number
+                          total:
+                            type: number
       
   /site/status:
     get:
@@ -924,7 +931,7 @@ components:
       properties:
         id:
           type: number
-        user_id:
+        userID:
           type: number
         name:
           type: string
@@ -932,7 +939,7 @@ components:
           type: string
         class:
           type: number
-        tag_based:
+        tagBased:
           type: boolean
           
     comment:
@@ -940,17 +947,17 @@ components:
       properties:
         id:
           type: number
-        post_id:
+        postID:
           type: number
         score:
           type: number
         text:
           type: string
-        creation_date:
+        creationDate:
           type: string
-        user_id:
+        userID:
           type: number
-        content_license:
+        contentLicense:
           type: string
           
     tag:
@@ -960,15 +967,15 @@ components:
           type: number
         count:
           type: number
-        tag_name:
+        tagName:
           type: string
-        is_required:
+        isRequired:
           type: boolean
-        is_moderator_only:
+        isModeratorOnly:
           type: boolean
-        wiki_post_id:
+        wikiPostID:
           type: number
-        excerpt_post_id:
+        excerptPostID:
           type: number
           
     user:
@@ -978,17 +985,17 @@ components:
           type: number
         reputation:
           type: number
-        creation_date:
+        creationDate:
           type: string
-        display_name:
+        displayName:
           type: string
-        last_access_date:
+        lastAccessDate:
           type: string
         location:
           type: string
-        website_url:
+        websiteUrl:
           type: string
-        about_me:
+        aboutMe:
           type: string
         views:
           type: number
@@ -996,9 +1003,9 @@ components:
           type: number
         downvotes:
           type: number
-        account_id:
+        accountID:
           type: number
-        profile_image_url:
+        profileImageUrl:
           type: string
           
     post:
@@ -1006,13 +1013,13 @@ components:
       properties:
         id:
           type: number
-        post_type_id:
+        postTypeID:
           type: number
-        creation_date:
+        creationDate:
           type: string
-        closed_date:
+        closedDate:
           type: string
-        accepted_answer_id:
+        acceptedAnswerID:
           type: number
         score:
           type: number
@@ -1020,15 +1027,15 @@ components:
           type: string
         tags:
           type: string
-        view_count:
+        viewCount:
           type: number
-        answer_count:
+        answerCount:
           type: number
-        comment_count:
+        commentCount:
           type: number
-        favorite_count:
+        favoriteCount:
           type: number
-        content_license:
+        contentLicense:
           type: string
         
     post_history:
@@ -1036,33 +1043,21 @@ components:
       properties:
         id:
           type: number
-        post_history_type_id:
+        postHistoryTypeID:
           type: number
-        post_id:
+        postID:
           type: number
-        revision_guid:
+        revisionGuid:
           type: string
-        creation_date:
+        creationDate:
           type: string
-        user_id:
+        userID:
           type: number
         comment:
           type: string
         text:
           type: string
-        content_license:
-          type: string
-          
-    vote:
-      type: object
-      properties:
-        id:
-          type: number
-        post_id:
-          type: number
-        vote_type_id:
-          type: number
-        creation_date:
+        contentLicense:
           type: string
           
     site:
