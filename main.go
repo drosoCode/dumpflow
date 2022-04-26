@@ -1,9 +1,9 @@
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/drosocode/dumpflow/internal/config"
 	"github.com/drosocode/dumpflow/internal/database"
@@ -14,6 +14,9 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 )
+
+//go:embed api static
+var embedFS embed.FS
 
 func main() {
 	conn := database.DBMSConn{Host: "10.10.2.1", Port: 5432, User: "postgres", Password: "secret", Prefix: "so_"}
@@ -41,10 +44,11 @@ func main() {
 	handler.SetupUsers(site)
 	handler.SetupSite(api)
 
-	workDir, _ := os.Getwd()
-	handler.ServeStatic(r, "/swagger", http.Dir(filepath.Join(workDir, "api")))
-
-	//importer.ImportFromPath("metanetworkengineering", "data/networkengineering.meta.stackexchange.com")
+	staticFS := fs.FS(embedFS)
+	apiDir, _ := fs.Sub(staticFS, "api")
+	handler.ServeStatic(r, "/swagger", http.FS(apiDir))
+	staticDir, _ := fs.Sub(staticFS, "static")
+	handler.ServeStatic(r, "/", http.FS(staticDir))
 
 	http.ListenAndServe("0.0.0.0:3002", r)
 }

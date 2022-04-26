@@ -12,3 +12,6 @@ web/.output
 data/
 internal/database/schema.sql
 internal/config/config.sql
+
+static/
+dist/
