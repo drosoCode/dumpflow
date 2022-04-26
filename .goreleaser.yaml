@@ -1,0 +1,115 @@
+project_name: dumpflow
+
+env:
+  - GO111MODULE=on
+
+build:
+  env:
+    - CGO_ENABLED=0
+  main: main.go
+  binary: dumpflow
+  goos:
+    - linux
+  goarch:
+    - amd64
+    - arm
+    - arm64
+  goarm:
+    - 6
+    - 7
+
+archives:
+  - name_template: "{{.Os}}-{{.Arch}}{{if .Arm}}v{{.Arm}}{{end}}-{{ .ProjectName }}"
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+
+dockers:
+  - dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/amd64"
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-amd64"
+      - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-amd64"
+      
+  - dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm64"
+    goos: linux
+    goarch: arm64
+    image_templates:
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-arm64"
+      - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-arm64"
+      
+  - dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm/v6"
+    goos: linux
+    goarch: arm
+    goarm: '6'
+    image_templates:
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-armv6"
+      - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-armv6"
+    extra_files:
+      - docker_config.json
+
+  - dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--platform=linux/arm/v7"
+    goos: linux
+    goarch: arm
+    goarm: '7'
+    image_templates:
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-armv7"
+      - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-armv7"
+
+docker_manifests:
+  - name_template: "ghcr.io/drosocode/dumpflow:latest"
+    image_templates:
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-amd64"
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-arm64"
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-armv6"
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-armv7"
+  - name_template: "ghcr.io/drosocode/dumpflow:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-amd64"
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-arm64"
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-armv6"
+      - "ghcr.io/drosocode/dumpflow:{{ .Tag }}-armv7"
+  - name_template: "ghcr.io/drosocode/dumpflow:v{{ .Major }}"
+    image_templates:
+      - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-amd64"
+      - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-arm64"
+      - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-armv6"
+      - "ghcr.io/drosocode/dumpflow:v{{ .Major }}-armv7"
