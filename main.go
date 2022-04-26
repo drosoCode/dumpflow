@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"net/http"
 
+	"github.com/drosocode/dumpflow/cmd"
 	"github.com/drosocode/dumpflow/internal/config"
 	"github.com/drosocode/dumpflow/internal/database"
 	handler "github.com/drosocode/dumpflow/internal/handlers"
@@ -19,9 +20,11 @@ import (
 var embedFS embed.FS
 
 func main() {
-	conn := database.DBMSConn{Host: "10.10.2.1", Port: 5432, User: "postgres", Password: "secret", Prefix: "so_"}
-	database.ConfigDB(conn)
-	config.ConfigDB(conn)
+	cmd.ParseConfig()
+
+	database.ConfigDB(cmd.Config.DBConn)
+	config.ConfigDB(cmd.Config.DBConn)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(cors.Handler(cors.Options{
@@ -50,5 +53,5 @@ func main() {
 	staticDir, _ := fs.Sub(staticFS, "static")
 	handler.ServeStatic(r, "/", http.FS(staticDir))
 
-	http.ListenAndServe("0.0.0.0:3002", r)
+	http.ListenAndServe(cmd.Config.ServeAddr, r)
 }
