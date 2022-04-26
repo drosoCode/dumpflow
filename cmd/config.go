@@ -16,7 +16,7 @@ type ConfigData struct {
 var Config ConfigData
 
 func ParseConfig() {
-	serve := flag.String("serve", "0.0.0.0:3000", "bind address")
+	serve := flag.String("serve", "0.0.0.0:3002", "bind address")
 	host := flag.String("db_host", "127.0.0.1", "host of the DBMS server")
 	port := flag.Int("db_port", 5432, "port of the DBMS server")
 	username := flag.String("db_username", "postgres", "username for the DBMS server")
