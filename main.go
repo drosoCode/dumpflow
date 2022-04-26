@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"io/fs"
+	"log"
 	"net/http"
 
 	"github.com/drosocode/dumpflow/cmd"
@@ -23,7 +24,10 @@ func main() {
 	cmd.ParseConfig()
 
 	database.ConfigDB(cmd.Config.DBConn)
-	config.ConfigDB(cmd.Config.DBConn)
+	err := config.ConfigDB(cmd.Config.DBConn)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -48,10 +52,16 @@ func main() {
 	handler.SetupSite(api)
 
 	staticFS := fs.FS(embedFS)
+
 	apiDir, _ := fs.Sub(staticFS, "api")
 	handler.ServeStatic(r, "/swagger", http.FS(apiDir))
+
 	staticDir, _ := fs.Sub(staticFS, "static")
 	handler.ServeStatic(r, "/", http.FS(staticDir))
+	handler.ServeIndex(r, "/status", http.FS(staticDir))
+	handler.ServeIndex(r, "/import", http.FS(staticDir))
+	handler.ServeIndex(r, "/download", http.FS(staticDir))
+	handler.ServeIndex(r, "/site/*", http.FS(staticDir))
 
 	http.ListenAndServe(cmd.Config.ServeAddr, r)
 }

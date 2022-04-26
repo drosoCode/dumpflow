@@ -45,7 +45,7 @@ func importFile(db *database.Queries, file io.ReadCloser, name string, size int6
 }
 
 func importBadges(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
-	status.Badges = ImportStatusItem{Total: size}
+	status.Badges.Total = size
 
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
@@ -64,7 +64,7 @@ func importBadges(db *database.Queries, file io.ReadCloser, size int64, status *
 }
 
 func importComments(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
-	status.Comments = ImportStatusItem{Total: size}
+	status.Comments.Total = size
 
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
@@ -84,7 +84,7 @@ func importComments(db *database.Queries, file io.ReadCloser, size int64, status
 }
 
 func importPostHistory(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
-	status.PostHistory = ImportStatusItem{Total: size}
+	status.PostHistory.Total = size
 
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
@@ -106,7 +106,7 @@ func importPostHistory(db *database.Queries, file io.ReadCloser, size int64, sta
 }
 
 func importPostLinks(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
-	status.PostLinks = ImportStatusItem{Total: size}
+	status.PostLinks.Total = size
 
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
@@ -124,7 +124,7 @@ func importPostLinks(db *database.Queries, file io.ReadCloser, size int64, statu
 }
 
 func importPosts(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
-	status.Posts = ImportStatusItem{Total: size}
+	status.Posts.Total = size
 
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
@@ -151,7 +151,7 @@ func importPosts(db *database.Queries, file io.ReadCloser, size int64, status *I
 }
 
 func importTags(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
-	status.Tags = ImportStatusItem{Total: size}
+	status.Tags.Total = size
 
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
@@ -171,7 +171,7 @@ func importTags(db *database.Queries, file io.ReadCloser, size int64, status *Im
 }
 
 func importUsers(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
-	status.Users = ImportStatusItem{Total: size}
+	status.Users.Total = size
 
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
@@ -197,7 +197,7 @@ func importUsers(db *database.Queries, file io.ReadCloser, size int64, status *I
 }
 
 func importVotes(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
-	status.Votes = ImportStatusItem{Total: size}
+	status.Votes.Total = size
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")

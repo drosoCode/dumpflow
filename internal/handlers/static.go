@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
 	"strings"
 
@@ -23,5 +24,14 @@ func ServeStatic(r chi.Router, serverRoute string, pathToStaticFolder http.FileS
 		serverRoutePrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 		fs := http.StripPrefix(serverRoutePrefix, http.FileServer(pathToStaticFolder))
 		fs.ServeHTTP(w, r)
+	})
+}
+
+func ServeIndex(r chi.Router, serverRoute string, pathToStaticFolder http.FileSystem) {
+	r.Get(serverRoute, func(w http.ResponseWriter, r *http.Request) {
+		f, _ := pathToStaticFolder.Open("index.html")
+		d, _ := io.ReadAll(f)
+		w.Header().Set("Content-Type", "text/html")
+		w.Write(d)
 	})
 }

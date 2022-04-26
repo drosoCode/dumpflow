@@ -93,7 +93,17 @@ func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 	var wg sync.WaitGroup
 	wg.Add(8)
 
-	st := ImportStatus{}
+	st := ImportStatus{
+		Badges:      ImportStatusItem{Current: 0, Total: 1},
+		Comments:    ImportStatusItem{Current: 0, Total: 1},
+		PostHistory: ImportStatusItem{Current: 0, Total: 1},
+		PostLinks:   ImportStatusItem{Current: 0, Total: 1},
+		Posts:       ImportStatusItem{Current: 0, Total: 1},
+		Tags:        ImportStatusItem{Current: 0, Total: 1},
+		Users:       ImportStatusItem{Current: 0, Total: 1},
+		Votes:       ImportStatusItem{Current: 0, Total: 1},
+		Unzipping:   ImportStatusItem{Current: 0, Total: 1},
+	}
 	Status[providedPath] = &st
 
 	files := []string{"Badges.xml", "Comments.xml", "PostHistory.xml", "PostLinks.xml", "Posts.xml", "Tags.xml", "Users.xml", "Votes.xml"}
@@ -101,7 +111,7 @@ func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 
 	if base == "stackoverflow.com.7z" {
 		path = providedPath[0 : len(providedPath)-3]
-		st.Unzipping = ImportStatusItem{Current: 0, Total: 8}
+		st.Unzipping.Total = 8
 		for i := range files {
 			p := path + "-" + files[i][0:len(files[i])-4] + ".7z"
 			log.Println(p)
@@ -114,7 +124,6 @@ func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 			st.Unzipping.Current++
 		}
 	} else if filepath.Ext(base) == ".7z" {
-		st.Unzipping = ImportStatusItem{Current: 0, Total: 1}
 		if filepath.Ext(providedPath) == ".7z" {
 			path = providedPath[0 : len(providedPath)-3]
 			cmd := exec.Command("7z", "x", providedPath, "-o"+path, "-aoa")
@@ -124,6 +133,8 @@ func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 			}
 		}
 		st.Unzipping.Current++
+	} else {
+		st.Unzipping.Current = 1
 	}
 
 	if err := verifXmlFiles(path); err != nil {
