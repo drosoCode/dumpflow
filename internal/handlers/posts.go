@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"crypto/sha256"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	database "github.com/drosocode/dumpflow/internal/database"
 	"github.com/drosocode/dumpflow/internal/utils/srv"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v4"
 	"github.com/lib/pq"
 )
 
@@ -164,18 +164,18 @@ func Search() http.HandlerFunc {
 		}
 
 		// execute query
-		var rows *sql.Rows
+		var rows pgx.Rows
 		if len(settings.Tags) > 0 && settings.Username != "" {
 			query = strings.Replace(query, "FROM posts p", "FROM ("+searchTags+" INTERSECT "+strings.Replace(searchUsers, "$3", "$4", 1)+") AS p", 1)
-			rows, err = db.Query(query, settings.Search, historyLimit, pq.Array(settings.Tags), settings.Username)
+			rows, err = db.Query(context.Background(), query, settings.Search, historyLimit, pq.Array(settings.Tags), settings.Username)
 		} else if len(settings.Tags) > 0 {
 			query = strings.Replace(query, "FROM posts p", "FROM "+searchTags+" AS p", 1)
-			rows, err = db.Query(query, settings.Search, historyLimit, pq.Array(settings.Tags))
+			rows, err = db.Query(context.Background(), query, settings.Search, historyLimit, pq.Array(settings.Tags))
 		} else if settings.Username != "" {
 			query = strings.Replace(query, "FROM posts p", "FROM "+searchUsers+" AS p", 1)
-			rows, err = db.Query(query, settings.Search, historyLimit, settings.Username)
+			rows, err = db.Query(context.Background(), query, settings.Search, historyLimit, settings.Username)
 		} else {
-			rows, err = db.Query(query, settings.Search, historyLimit)
+			rows, err = db.Query(context.Background(), query, settings.Search, historyLimit)
 		}
 
 		if srv.IfError(w, r, err) {

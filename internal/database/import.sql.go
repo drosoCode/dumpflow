@@ -6,15 +6,8 @@
 package database
 
 import (
-	"context"
 	"time"
 )
-
-const addBadge = `-- name: AddBadge :exec
-INSERT INTO badges (id, user_id, name, date, class, tag_based) 
-    VALUES ($1, $2, $3, $4, $5, $6)
-    ON CONFLICT DO NOTHING
-`
 
 type AddBadgeParams struct {
 	ID       int64     `json:"id"`
@@ -25,24 +18,6 @@ type AddBadgeParams struct {
 	TagBased bool      `json:"tagBased"`
 }
 
-func (q *Queries) AddBadge(ctx context.Context, arg AddBadgeParams) error {
-	_, err := q.db.ExecContext(ctx, addBadge,
-		arg.ID,
-		arg.UserID,
-		arg.Name,
-		arg.Date,
-		arg.Class,
-		arg.TagBased,
-	)
-	return err
-}
-
-const addComment = `-- name: AddComment :exec
-INSERT INTO comments (id, post_id, score, text, creation_date, user_id, content_license)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-    ON CONFLICT DO NOTHING
-`
-
 type AddCommentParams struct {
 	ID             int64     `json:"id"`
 	PostID         int64     `json:"postID"`
@@ -52,25 +27,6 @@ type AddCommentParams struct {
 	UserID         int64     `json:"userID"`
 	ContentLicense string    `json:"contentLicense"`
 }
-
-func (q *Queries) AddComment(ctx context.Context, arg AddCommentParams) error {
-	_, err := q.db.ExecContext(ctx, addComment,
-		arg.ID,
-		arg.PostID,
-		arg.Score,
-		arg.Text,
-		arg.CreationDate,
-		arg.UserID,
-		arg.ContentLicense,
-	)
-	return err
-}
-
-const addPost = `-- name: AddPost :exec
-INSERT INTO posts (id, post_type_id, parent_id, accepted_answer_id, creation_date, score, view_count, body, answer_count, comment_count, favorite_count, content_license, closed_date, tags)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-    ON CONFLICT DO NOTHING
-`
 
 type AddPostParams struct {
 	ID               int64     `json:"id"`
@@ -89,32 +45,6 @@ type AddPostParams struct {
 	Tags             string    `json:"tags"`
 }
 
-func (q *Queries) AddPost(ctx context.Context, arg AddPostParams) error {
-	_, err := q.db.ExecContext(ctx, addPost,
-		arg.ID,
-		arg.PostTypeID,
-		arg.ParentID,
-		arg.AcceptedAnswerID,
-		arg.CreationDate,
-		arg.Score,
-		arg.ViewCount,
-		arg.Body,
-		arg.AnswerCount,
-		arg.CommentCount,
-		arg.FavoriteCount,
-		arg.ContentLicense,
-		arg.ClosedDate,
-		arg.Tags,
-	)
-	return err
-}
-
-const addPostHistory = `-- name: AddPostHistory :exec
-INSERT INTO post_history (id, post_history_type_id, post_id, revision_guid, creation_date, user_id, comment, text, content_license)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    ON CONFLICT DO NOTHING
-`
-
 type AddPostHistoryParams struct {
 	ID                int64     `json:"id"`
 	PostHistoryTypeID int32     `json:"postHistoryTypeID"`
@@ -127,27 +57,6 @@ type AddPostHistoryParams struct {
 	ContentLicense    string    `json:"contentLicense"`
 }
 
-func (q *Queries) AddPostHistory(ctx context.Context, arg AddPostHistoryParams) error {
-	_, err := q.db.ExecContext(ctx, addPostHistory,
-		arg.ID,
-		arg.PostHistoryTypeID,
-		arg.PostID,
-		arg.RevisionGuid,
-		arg.CreationDate,
-		arg.UserID,
-		arg.Comment,
-		arg.Text,
-		arg.ContentLicense,
-	)
-	return err
-}
-
-const addPostLink = `-- name: AddPostLink :exec
-INSERT INTO post_links (id, creation_date, post_id, related_post_id, link_type_id)
-    VALUES ($1, $2, $3, $4, $5)
-    ON CONFLICT DO NOTHING
-`
-
 type AddPostLinkParams struct {
 	ID            int64     `json:"id"`
 	CreationDate  time.Time `json:"creationDate"`
@@ -155,23 +64,6 @@ type AddPostLinkParams struct {
 	RelatedPostID int64     `json:"relatedPostID"`
 	LinkTypeID    int32     `json:"linkTypeID"`
 }
-
-func (q *Queries) AddPostLink(ctx context.Context, arg AddPostLinkParams) error {
-	_, err := q.db.ExecContext(ctx, addPostLink,
-		arg.ID,
-		arg.CreationDate,
-		arg.PostID,
-		arg.RelatedPostID,
-		arg.LinkTypeID,
-	)
-	return err
-}
-
-const addTag = `-- name: AddTag :exec
-INSERT INTO tags (id, tag_name, count, is_required, is_moderator_only, wiki_post_id, excerpt_post_id)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-    ON CONFLICT DO NOTHING
-`
 
 type AddTagParams struct {
 	ID              int64  `json:"id"`
@@ -182,25 +74,6 @@ type AddTagParams struct {
 	WikiPostID      int32  `json:"wikiPostID"`
 	ExcerptPostID   int32  `json:"excerptPostID"`
 }
-
-func (q *Queries) AddTag(ctx context.Context, arg AddTagParams) error {
-	_, err := q.db.ExecContext(ctx, addTag,
-		arg.ID,
-		arg.TagName,
-		arg.Count,
-		arg.IsRequired,
-		arg.IsModeratorOnly,
-		arg.WikiPostID,
-		arg.ExcerptPostID,
-	)
-	return err
-}
-
-const addUser = `-- name: AddUser :exec
-INSERT INTO users (id, reputation, creation_date, display_name, last_access_date, location, website_url, about_me, views, upvotes, downvotes, account_id, profile_image_url)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-    ON CONFLICT DO NOTHING
-`
 
 type AddUserParams struct {
 	ID              int64     `json:"id"`
@@ -218,44 +91,9 @@ type AddUserParams struct {
 	ProfileImageUrl string    `json:"profileImageUrl"`
 }
 
-func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
-	_, err := q.db.ExecContext(ctx, addUser,
-		arg.ID,
-		arg.Reputation,
-		arg.CreationDate,
-		arg.DisplayName,
-		arg.LastAccessDate,
-		arg.Location,
-		arg.WebsiteUrl,
-		arg.AboutMe,
-		arg.Views,
-		arg.Upvotes,
-		arg.Downvotes,
-		arg.AccountID,
-		arg.ProfileImageUrl,
-	)
-	return err
-}
-
-const addVote = `-- name: AddVote :exec
-INSERT INTO votes (id, post_id, vote_type_id, creation_date)
-    VALUES ($1, $2, $3, $4)
-    ON CONFLICT DO NOTHING
-`
-
 type AddVoteParams struct {
 	ID           int64     `json:"id"`
 	PostID       int64     `json:"postID"`
 	VoteTypeID   int32     `json:"voteTypeID"`
 	CreationDate time.Time `json:"creationDate"`
-}
-
-func (q *Queries) AddVote(ctx context.Context, arg AddVoteParams) error {
-	_, err := q.db.ExecContext(ctx, addVote,
-		arg.ID,
-		arg.PostID,
-		arg.VoteTypeID,
-		arg.CreationDate,
-	)
-	return err
 }

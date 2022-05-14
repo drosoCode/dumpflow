@@ -2,7 +2,7 @@
 
 DROP TABLE IF EXISTS "badges";
 CREATE TABLE "public"."badges" (
-    "id" bigint PRIMARY KEY,
+    "id" bigint NOT NULL,
     "user_id" bigint NOT NULL,
     "name" text NOT NULL,
     "date" timestamp NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE "public"."badges" (
 
 DROP TABLE IF EXISTS "comments";
 CREATE TABLE "public"."comments" (
-    "id" bigint PRIMARY KEY,
+    "id" bigint NOT NULL,
     "post_id" bigint NOT NULL,
     "score" integer NOT NULL,
     "text" text NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE "public"."comments" (
 
 DROP TABLE IF EXISTS "post_history";
 CREATE TABLE "public"."post_history" (
-    "id" bigint PRIMARY KEY,
+    "id" bigint NOT NULL,
     "post_history_type_id" integer NOT NULL,
     "post_id" bigint NOT NULL,
     "revision_guid" text NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE "public"."post_history" (
 
 DROP TABLE IF EXISTS "post_links";
 CREATE TABLE "public"."post_links" (
-    "id" bigint PRIMARY KEY,
+    "id" bigint NOT NULL,
     "creation_date" timestamp NOT NULL,
     "post_id" bigint NOT NULL,
     "related_post_id" bigint NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE "public"."post_links" (
 
 DROP TABLE IF EXISTS "posts";
 CREATE TABLE "public"."posts" (
-    "id" bigint PRIMARY KEY,
+    "id" bigint NOT NULL,
     "post_type_id" integer NOT NULL,
     "parent_id" bigint NOT NULL,
     "accepted_answer_id" integer NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE "public"."posts" (
 
 DROP TABLE IF EXISTS "tags";
 CREATE TABLE "public"."tags" (
-    "id" bigint PRIMARY KEY,
+    "id" bigint NOT NULL,
     "tag_name" text NOT NULL,
     "count" integer NOT NULL,
     "is_required" boolean NOT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE "public"."tags" (
 
 DROP TABLE IF EXISTS "users";
 CREATE TABLE "public"."users" (
-    "id" bigint PRIMARY KEY,
+    "id" bigint NOT NULL,
     "reputation" int NOT NULL,
     "creation_date" timestamp NOT NULL,
     "display_name" text NOT NULL,
@@ -101,18 +101,8 @@ CREATE TABLE "public"."users" (
 
 DROP TABLE IF EXISTS "votes";
 CREATE TABLE "public"."votes" (
-    "id" bigint PRIMARY KEY,
+    "id" bigint NOT NULL,
     "post_id" bigint NOT NULL,
     "vote_type_id" int NOT NULL,
     "creation_date" timestamp NOT NULL
 ) WITH (oids = false);
-
-
-DROP TABLE IF EXISTS "posts_idx";
-CREATE INDEX posts_idx ON posts USING GIN ("body_index");
-
-DROP TABLE IF EXISTS "comments_idx";
-CREATE INDEX comments_idx ON comments USING GIN ("text_index");
-
-DROP TABLE IF EXISTS "post_history_idx";
-CREATE INDEX post_history_idx ON post_history USING GIN ("text_index");

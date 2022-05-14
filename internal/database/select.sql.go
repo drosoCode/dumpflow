@@ -15,7 +15,7 @@ SELECT id, user_id, name, date, class, tag_based FROM badges WHERE id = $1
 `
 
 func (q *Queries) GetBadge(ctx context.Context, id int64) (Badge, error) {
-	row := q.db.QueryRowContext(ctx, getBadge, id)
+	row := q.db.QueryRow(ctx, getBadge, id)
 	var i Badge
 	err := row.Scan(
 		&i.ID,
@@ -46,7 +46,7 @@ type GetCommentRow struct {
 
 //--------- COMMENTS
 func (q *Queries) GetComment(ctx context.Context, id int64) (GetCommentRow, error) {
-	row := q.db.QueryRowContext(ctx, getComment, id)
+	row := q.db.QueryRow(ctx, getComment, id)
 	var i GetCommentRow
 	err := row.Scan(
 		&i.ID,
@@ -85,7 +85,7 @@ type GetPostRow struct {
 
 //--------- POSTS
 func (q *Queries) GetPost(ctx context.Context, id int64) (GetPostRow, error) {
-	row := q.db.QueryRowContext(ctx, getPost, id)
+	row := q.db.QueryRow(ctx, getPost, id)
 	var i GetPostRow
 	err := row.Scan(
 		&i.ID,
@@ -111,7 +111,7 @@ SELECT id, tag_name, count, is_required, is_moderator_only, wiki_post_id, excerp
 `
 
 func (q *Queries) GetTag(ctx context.Context, id int64) ([]Tag, error) {
-	rows, err := q.db.QueryContext(ctx, getTag, id)
+	rows, err := q.db.Query(ctx, getTag, id)
 	if err != nil {
 		return nil, err
 	}
@@ -131,9 +131,6 @@ func (q *Queries) GetTag(ctx context.Context, id int64) ([]Tag, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -146,7 +143,7 @@ SELECT id, tag_name, count, is_required, is_moderator_only, wiki_post_id, excerp
 `
 
 func (q *Queries) GetTagFromName(ctx context.Context, tagName string) ([]Tag, error) {
-	rows, err := q.db.QueryContext(ctx, getTagFromName, tagName)
+	rows, err := q.db.Query(ctx, getTagFromName, tagName)
 	if err != nil {
 		return nil, err
 	}
@@ -166,9 +163,6 @@ func (q *Queries) GetTagFromName(ctx context.Context, tagName string) ([]Tag, er
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -183,7 +177,7 @@ SELECT id, reputation, creation_date, display_name, last_access_date, location, 
 
 //--------- USERS
 func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, id)
+	row := q.db.QueryRow(ctx, getUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -213,7 +207,7 @@ type GetVotesFromPostRow struct {
 }
 
 func (q *Queries) GetVotesFromPost(ctx context.Context, postID int64) ([]GetVotesFromPostRow, error) {
-	rows, err := q.db.QueryContext(ctx, getVotesFromPost, postID)
+	rows, err := q.db.Query(ctx, getVotesFromPost, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -225,9 +219,6 @@ func (q *Queries) GetVotesFromPost(ctx context.Context, postID int64) ([]GetVote
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -260,7 +251,7 @@ type ListAnswersRow struct {
 }
 
 func (q *Queries) ListAnswers(ctx context.Context, parentID int64) ([]ListAnswersRow, error) {
-	rows, err := q.db.QueryContext(ctx, listAnswers, parentID)
+	rows, err := q.db.Query(ctx, listAnswers, parentID)
 	if err != nil {
 		return nil, err
 	}
@@ -289,9 +280,6 @@ func (q *Queries) ListAnswers(ctx context.Context, parentID int64) ([]ListAnswer
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -305,7 +293,7 @@ SELECT id, user_id, name, date, class, tag_based FROM badges
 
 //--------- BADGES
 func (q *Queries) ListBadges(ctx context.Context) ([]Badge, error) {
-	rows, err := q.db.QueryContext(ctx, listBadges)
+	rows, err := q.db.Query(ctx, listBadges)
 	if err != nil {
 		return nil, err
 	}
@@ -324,9 +312,6 @@ func (q *Queries) ListBadges(ctx context.Context) ([]Badge, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -339,7 +324,7 @@ SELECT id, user_id, name, date, class, tag_based FROM badges WHERE user_id = $1
 `
 
 func (q *Queries) ListBadgesFromUser(ctx context.Context, userID int64) ([]Badge, error) {
-	rows, err := q.db.QueryContext(ctx, listBadgesFromUser, userID)
+	rows, err := q.db.Query(ctx, listBadgesFromUser, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -358,9 +343,6 @@ func (q *Queries) ListBadgesFromUser(ctx context.Context, userID int64) ([]Badge
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -384,7 +366,7 @@ type ListCommentsFromPostRow struct {
 }
 
 func (q *Queries) ListCommentsFromPost(ctx context.Context, postID int64) ([]ListCommentsFromPostRow, error) {
-	rows, err := q.db.QueryContext(ctx, listCommentsFromPost, postID)
+	rows, err := q.db.Query(ctx, listCommentsFromPost, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -404,9 +386,6 @@ func (q *Queries) ListCommentsFromPost(ctx context.Context, postID int64) ([]Lis
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -432,7 +411,7 @@ type ListHistoryFromPostRow struct {
 }
 
 func (q *Queries) ListHistoryFromPost(ctx context.Context, postID int64) ([]ListHistoryFromPostRow, error) {
-	rows, err := q.db.QueryContext(ctx, listHistoryFromPost, postID)
+	rows, err := q.db.Query(ctx, listHistoryFromPost, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -455,9 +434,6 @@ func (q *Queries) ListHistoryFromPost(ctx context.Context, postID int64) ([]List
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -474,7 +450,7 @@ type ListRelatedPostsParams struct {
 }
 
 func (q *Queries) ListRelatedPosts(ctx context.Context, arg ListRelatedPostsParams) ([]PostLink, error) {
-	rows, err := q.db.QueryContext(ctx, listRelatedPosts, arg.PostID, arg.Limit)
+	rows, err := q.db.Query(ctx, listRelatedPosts, arg.PostID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -493,9 +469,6 @@ func (q *Queries) ListRelatedPosts(ctx context.Context, arg ListRelatedPostsPara
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -509,7 +482,7 @@ SELECT id, tag_name, count, is_required, is_moderator_only, wiki_post_id, excerp
 
 //--------- TAGS
 func (q *Queries) ListTags(ctx context.Context) ([]Tag, error) {
-	rows, err := q.db.QueryContext(ctx, listTags)
+	rows, err := q.db.Query(ctx, listTags)
 	if err != nil {
 		return nil, err
 	}
@@ -530,9 +503,6 @@ func (q *Queries) ListTags(ctx context.Context) ([]Tag, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -544,7 +514,7 @@ SELECT id, reputation, creation_date, display_name, last_access_date, location, 
 `
 
 func (q *Queries) ListUsersFromPost(ctx context.Context, postID int64) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listUsersFromPost, postID)
+	rows, err := q.db.Query(ctx, listUsersFromPost, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -570,9 +540,6 @@ func (q *Queries) ListUsersFromPost(ctx context.Context, postID int64) ([]User, 
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

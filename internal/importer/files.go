@@ -18,6 +18,12 @@ func skipErr[T any](data T, err error) T {
 	return data
 }
 
+var CopySize int
+
+func init() {
+	CopySize = 500
+}
+
 func importFile(db *database.Queries, file io.ReadCloser, name string, size int64, st *ImportStatus, wg *sync.WaitGroup) {
 	fmt.Printf("starting import of %s\n", name)
 
@@ -50,8 +56,11 @@ func importBadges(db *database.Queries, file io.ReadCloser, size int64, status *
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")
+	data := []database.AddBadgeParams{}
+	i := 0
+
 	for xml := range parser.Stream() {
-		db.AddBadge(ctx, database.AddBadgeParams{
+		data = append(data, database.AddBadgeParams{
 			ID:       skipErr(strconv.ParseInt(xml.Attrs["Id"], 10, 64)),
 			UserID:   skipErr(strconv.ParseInt(xml.Attrs["UserId"], 10, 64)),
 			Name:     xml.Attrs["Name"],
@@ -59,8 +68,15 @@ func importBadges(db *database.Queries, file io.ReadCloser, size int64, status *
 			Class:    int32(skipErr(strconv.ParseInt(xml.Attrs["Class"], 10, 32))),
 			TagBased: xml.Attrs["TagBased"] == "true",
 		})
+		i++
 		status.Badges.Current = int64(parser.TotalReadSize)
+		if i == CopySize {
+			db.AddBadge(ctx, data)
+			i = 0
+			data = []database.AddBadgeParams{}
+		}
 	}
+	db.AddBadge(ctx, data)
 }
 
 func importComments(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
@@ -69,8 +85,11 @@ func importComments(db *database.Queries, file io.ReadCloser, size int64, status
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")
+	data := []database.AddCommentParams{}
+	i := 0
+
 	for xml := range parser.Stream() {
-		db.AddComment(ctx, database.AddCommentParams{
+		data = append(data, database.AddCommentParams{
 			ID:             skipErr(strconv.ParseInt(xml.Attrs["Id"], 10, 64)),
 			PostID:         skipErr(strconv.ParseInt(xml.Attrs["PostId"], 10, 64)),
 			Score:          int32(skipErr(strconv.ParseInt(xml.Attrs["Score"], 10, 32))),
@@ -79,8 +98,15 @@ func importComments(db *database.Queries, file io.ReadCloser, size int64, status
 			UserID:         skipErr(strconv.ParseInt(xml.Attrs["UserId"], 10, 64)),
 			ContentLicense: xml.Attrs["ContentLicense"],
 		})
+		i++
 		status.Comments.Current = int64(parser.TotalReadSize)
+		if i == CopySize {
+			db.AddComment(ctx, data)
+			i = 0
+			data = []database.AddCommentParams{}
+		}
 	}
+	db.AddComment(ctx, data)
 }
 
 func importPostHistory(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
@@ -89,8 +115,11 @@ func importPostHistory(db *database.Queries, file io.ReadCloser, size int64, sta
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")
+	data := []database.AddPostHistoryParams{}
+	i := 0
+
 	for xml := range parser.Stream() {
-		db.AddPostHistory(ctx, database.AddPostHistoryParams{
+		data = append(data, database.AddPostHistoryParams{
 			ID:                skipErr(strconv.ParseInt(xml.Attrs["Id"], 10, 64)),
 			PostHistoryTypeID: int32(skipErr(strconv.ParseInt(xml.Attrs["PostHistoryTypeId"], 10, 32))),
 			PostID:            skipErr(strconv.ParseInt(xml.Attrs["PostId"], 10, 64)),
@@ -101,8 +130,15 @@ func importPostHistory(db *database.Queries, file io.ReadCloser, size int64, sta
 			Text:              xml.Attrs["Text"],
 			ContentLicense:    xml.Attrs["ContentLicense"],
 		})
+		i++
 		status.PostHistory.Current = int64(parser.TotalReadSize)
+		if i == CopySize {
+			db.AddPostHistory(ctx, data)
+			i = 0
+			data = []database.AddPostHistoryParams{}
+		}
 	}
+	db.AddPostHistory(ctx, data)
 }
 
 func importPostLinks(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
@@ -111,16 +147,26 @@ func importPostLinks(db *database.Queries, file io.ReadCloser, size int64, statu
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")
+	data := []database.AddPostLinkParams{}
+	i := 0
+
 	for xml := range parser.Stream() {
-		db.AddPostLink(ctx, database.AddPostLinkParams{
+		data = append(data, database.AddPostLinkParams{
 			ID:            skipErr(strconv.ParseInt(xml.Attrs["Id"], 10, 64)),
 			CreationDate:  skipErr(time.Parse("2006-01-02T15:04:05.000", xml.Attrs["CreationDate"])),
 			PostID:        skipErr(strconv.ParseInt(xml.Attrs["PostId"], 10, 64)),
 			RelatedPostID: skipErr(strconv.ParseInt(xml.Attrs["RelatedPostId"], 10, 64)),
 			LinkTypeID:    int32(skipErr(strconv.ParseInt(xml.Attrs["LinkTypeId"], 10, 32))),
 		})
+		i++
 		status.PostLinks.Current = int64(parser.TotalReadSize)
+		if i == CopySize {
+			db.AddPostLink(ctx, data)
+			i = 0
+			data = []database.AddPostLinkParams{}
+		}
 	}
+	db.AddPostLink(ctx, data)
 }
 
 func importPosts(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
@@ -129,8 +175,11 @@ func importPosts(db *database.Queries, file io.ReadCloser, size int64, status *I
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")
+	data := []database.AddPostParams{}
+	i := 0
+
 	for xml := range parser.Stream() {
-		db.AddPost(ctx, database.AddPostParams{
+		data = append(data, database.AddPostParams{
 			ID:               skipErr(strconv.ParseInt(xml.Attrs["Id"], 10, 64)),
 			PostTypeID:       int32(skipErr(strconv.ParseInt(xml.Attrs["PostTypeId"], 10, 32))),
 			ParentID:         skipErr(strconv.ParseInt(xml.Attrs["ParentId"], 10, 64)),
@@ -146,8 +195,15 @@ func importPosts(db *database.Queries, file io.ReadCloser, size int64, status *I
 			FavoriteCount:    int32(skipErr(strconv.ParseInt(xml.Attrs["FavoriteCount"], 10, 32))),
 			ContentLicense:   xml.Attrs["ContentLicense"],
 		})
+		i++
 		status.Posts.Current = int64(parser.TotalReadSize)
+		if i == CopySize {
+			db.AddPost(ctx, data)
+			i = 0
+			data = []database.AddPostParams{}
+		}
 	}
+	db.AddPost(ctx, data)
 }
 
 func importTags(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
@@ -156,8 +212,11 @@ func importTags(db *database.Queries, file io.ReadCloser, size int64, status *Im
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")
+	data := []database.AddTagParams{}
+	i := 0
+
 	for xml := range parser.Stream() {
-		db.AddTag(ctx, database.AddTagParams{
+		data = append(data, database.AddTagParams{
 			ID:              skipErr(strconv.ParseInt(xml.Attrs["Id"], 10, 64)),
 			TagName:         xml.Attrs["TagName"],
 			Count:           int32(skipErr(strconv.ParseInt(xml.Attrs["Count"], 10, 32))),
@@ -166,8 +225,15 @@ func importTags(db *database.Queries, file io.ReadCloser, size int64, status *Im
 			WikiPostID:      int32(skipErr(strconv.ParseInt(xml.Attrs["WikiPostId"], 10, 32))),
 			ExcerptPostID:   int32(skipErr(strconv.ParseInt(xml.Attrs["ExcerptPostId"], 10, 32))),
 		})
+		i++
 		status.Tags.Current = int64(parser.TotalReadSize)
+		if i == CopySize {
+			db.AddTag(ctx, data)
+			i = 0
+			data = []database.AddTagParams{}
+		}
 	}
+	db.AddTag(ctx, data)
 }
 
 func importUsers(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
@@ -176,8 +242,11 @@ func importUsers(db *database.Queries, file io.ReadCloser, size int64, status *I
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")
+	data := []database.AddUserParams{}
+	i := 0
+
 	for xml := range parser.Stream() {
-		db.AddUser(ctx, database.AddUserParams{
+		data = append(data, database.AddUserParams{
 			ID:              skipErr(strconv.ParseInt(xml.Attrs["Id"], 10, 64)),
 			Reputation:      int32(skipErr(strconv.ParseInt(xml.Attrs["Reputation"], 10, 32))),
 			CreationDate:    skipErr(time.Parse("2006-01-02T15:04:05.000", xml.Attrs["CreationDate"])),
@@ -192,8 +261,15 @@ func importUsers(db *database.Queries, file io.ReadCloser, size int64, status *I
 			AccountID:       skipErr(strconv.ParseInt(xml.Attrs["AccountId"], 10, 64)),
 			ProfileImageUrl: xml.Attrs["ProfileImageUrl"],
 		})
+		i++
 		status.Users.Current = int64(parser.TotalReadSize)
+		if i == CopySize {
+			db.AddUser(ctx, data)
+			i = 0
+			data = []database.AddUserParams{}
+		}
 	}
+	db.AddUser(ctx, data)
 }
 
 func importVotes(db *database.Queries, file io.ReadCloser, size int64, status *ImportStatus) {
@@ -201,13 +277,23 @@ func importVotes(db *database.Queries, file io.ReadCloser, size int64, status *I
 	ctx := context.Background()
 	br := bufio.NewReaderSize(file, 1024*1024)
 	parser := xmlparser.NewXMLParser(br, "row")
+	data := []database.AddVoteParams{}
+	i := 0
+
 	for xml := range parser.Stream() {
-		db.AddVote(ctx, database.AddVoteParams{
+		data = append(data, database.AddVoteParams{
 			ID:           skipErr(strconv.ParseInt(xml.Attrs["Id"], 10, 64)),
 			PostID:       skipErr(strconv.ParseInt(xml.Attrs["PostId"], 10, 64)),
 			VoteTypeID:   int32(skipErr(strconv.ParseInt(xml.Attrs["VoteTypeId"], 10, 32))),
 			CreationDate: skipErr(time.Parse("2006-01-02T15:04:05.000", xml.Attrs["CreationDate"])),
 		})
+		i++
 		status.Votes.Current = int64(parser.TotalReadSize)
+		if i == CopySize {
+			db.AddVote(ctx, data)
+			i = 0
+			data = []database.AddVoteParams{}
+		}
 	}
+	db.AddVote(ctx, data)
 }
