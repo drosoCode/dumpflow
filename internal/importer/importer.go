@@ -39,7 +39,8 @@ type ImportStatus struct {
 
 func ListPaths() []string {
 	ret := []string{}
-	filepath.WalkDir(".", func(path string, info fs.DirEntry, err error) error {
+	p, _ := filepath.EvalSymlinks(cmd.Config.DataDir)
+	filepath.WalkDir(p, func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -141,10 +142,13 @@ func ImportFromPath(providedPath string, onFinishCallback func(string)) error {
 		return err
 	}
 
+	// prepare db
+	database.DeleteDB(name)
 	db, err := database.GetDB(name)
 	if err != nil {
 		return err
 	}
+	database.PreImport(name)
 
 	// import all files
 	for _, f := range files {
@@ -170,6 +174,9 @@ func onFinish(name string, path string, providedPath string, wg *sync.WaitGroup,
 	wg.Wait()
 
 	log.Printf("import finished for %s", name)
+
+	// recreate indexes
+	database.PostImport(name)
 
 	// add the new site to db
 	err := config.DB.AddSite(context.Background(), config.AddSiteParams{DbName: name, Link: getLinkFromPath(path), UpdateDate: time.Now(), AutoUpdate: false, Enabled: true})

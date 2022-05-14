@@ -10,6 +10,7 @@ import (
 type ConfigData struct {
 	DeleteOnFinish bool
 	ServeAddr      string
+	DataDir        string
 	DBConn         database.DBMSConn
 }
 
@@ -23,6 +24,7 @@ func ParseConfig() {
 	password := flag.String("db_password", "", "password for the DBMS server")
 	prefix := flag.String("prefix", "so_", "prefix for stackexchange databases")
 	deleteOnFinish := flag.Bool("delete_onfinish", false, "delete the files when an import is finished")
+	datadir := flag.String("data_dir", ".", "path to data dir")
 
 	envy.Parse("DF")
 	flag.Parse()
@@ -30,6 +32,7 @@ func ParseConfig() {
 	Config = ConfigData{
 		DeleteOnFinish: *deleteOnFinish,
 		ServeAddr:      *serve,
+		DataDir:        *datadir,
 		DBConn: database.DBMSConn{
 			Host:     *host,
 			Port:     *port,
